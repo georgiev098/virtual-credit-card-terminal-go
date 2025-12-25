@@ -1,0 +1,89 @@
+package main
+
+import (
+	"embed"
+	"fmt"
+	"html/template"
+	"net/http"
+	"strings"
+)
+
+type templateData struct {
+	StringMap       map[string]string
+	IntMap          map[int]int
+	FloatMap        map[float32]float32
+	Data            map[string]any
+	CSRFToken       string
+	Flash           string
+	Warning         string
+	Error           string
+	IsAuthenticated int
+	API             string
+}
+
+var functions = template.FuncMap{}
+
+//go:embed templates
+var templateFS embed.FS
+
+func (app *Application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	return td
+}
+
+func (app *Application) renderTemplate(w http.ResponseWriter, r *http.Request, page string, td *templateData, partials ...string) error {
+	var t *template.Template
+	var err error
+
+	templateToRender := fmt.Sprintf("templates/%s.page.tmpl", page)
+
+	_, templateInMap := app.TemplateCache[templateToRender]
+	if app.Config.Env == "prod" && templateInMap {
+		t = app.TemplateCache[templateToRender]
+	} else {
+		t, err = app.parseTemplate(partials, page, templateToRender)
+		if err != nil {
+			app.ErrorLog.Println(err)
+			return err
+		}
+	}
+
+	if td == nil {
+		td = &templateData{}
+	}
+
+	td = app.addDefaultData(td, r)
+
+	err = t.Execute(w, td)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (app *Application) parseTemplate(partials []string, page, templateToRender string) (*template.Template, error) {
+	var t *template.Template
+	var err error
+
+	if len(partials) > 0 {
+		for i, v := range partials {
+			partials[i] = fmt.Sprintf("templates/%s.partial.tmpl", v)
+		}
+	}
+
+	if len(partials) > 0 {
+		t, err = template.New(fmt.Sprintf("%s.page.tmpl", page)).Funcs(functions).ParseFS(templateFS, "templates/base.layout.tmpl", strings.Join(partials, ","), templateToRender)
+	} else {
+		t, err = template.New(fmt.Sprintf("%s.page.tmpl", page)).Funcs(functions).ParseFS(templateFS, "templates/base.layout.tmpl", templateToRender)
+	}
+
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return nil, err
+	}
+
+	app.TemplateCache[templateToRender] = t
+
+	return t, nil
+}
