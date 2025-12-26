@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -46,6 +48,10 @@ func (app *Application) serve() error {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	var cfg Config
 
 	flag.IntVar(&cfg.Port, "port", 4000, "Server port to listen on")
@@ -56,6 +62,14 @@ func main() {
 
 	cfg.Stripe.Key = os.Getenv("STRIPE_KEY")
 	cfg.Stripe.Secret = os.Getenv("STRIPE_SECRET")
+
+	if cfg.Stripe.Key == "" {
+		log.Fatal("STRIPE_KEY not set in environment")
+	}
+
+	if cfg.Stripe.Secret == "" {
+		log.Fatal("STRIPE_SECRET not set in environment")
+	}
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -69,7 +83,7 @@ func main() {
 		TemplateCache: tc,
 	}
 
-	err := app.serve()
+	err = app.serve()
 	if err != nil {
 		app.ErrorLog.Println(err)
 		log.Fatal(err)

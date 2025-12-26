@@ -43,9 +43,41 @@
 {{end}}
 
 {{define "js"}}
-<script src="https://js.stripe.js/v3/"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script>
+
+    let card;
+    let stripe;
+
+    stripe = Stripe('{{.StripePublicKey}}')
     function val(){}
+    (function(){
+        const elements = stripe.elements();
+        const style = {
+            base: {
+                fontSize:"16px",
+                lineHeight:"24px"
+            }
+        };
+
+        card = elements.create("card",{
+            style:style,
+            hidePostalCode: true
+        });
+
+        card.mount("#card-element");
+
+        card.addEventListener("change",(e)=>{
+            let displayErr = document.getElementById("card-errors");
+            if(e.error){
+                displayErr.classList.remove("d-none");
+                displayErr.textContent = e.error.message;
+            } else {
+                displayErr.classList.add("d-none");
+                displayErr.textContent = "";
+            }
+        });
+    })();
 </script>
 {{end}}
 

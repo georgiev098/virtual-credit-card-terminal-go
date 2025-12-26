@@ -19,6 +19,7 @@ type templateData struct {
 	Error           string
 	IsAuthenticated int
 	API             string
+	StripePublicKey string
 }
 
 var functions = template.FuncMap{}
@@ -27,6 +28,13 @@ var functions = template.FuncMap{}
 var templateFS embed.FS
 
 func (app *Application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	if td == nil {
+		td = &templateData{}
+	}
+
+	// Pull Stripe public key from config
+	td.StripePublicKey = app.Config.Stripe.Key
+
 	return td
 }
 
