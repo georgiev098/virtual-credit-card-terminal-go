@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +14,6 @@ import (
 type Config struct {
 	Port int
 	Env  string
-	Api  string
 	Db   struct {
 		Dsn string
 	}
@@ -26,11 +24,9 @@ type Config struct {
 }
 
 type Application struct {
-	Config        Config
-	InfoLog       *log.Logger
-	ErrorLog      *log.Logger
-	TemplateCache map[string]*template.Template
-	version       string
+	Config   Config
+	InfoLog  *log.Logger
+	ErrorLog *log.Logger
 }
 
 func (app *Application) serve() error {
@@ -73,7 +69,6 @@ func main() {
 
 	err = app.serve()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		errLog.Fatalf("server error: %v", err)
 	}
-
 }

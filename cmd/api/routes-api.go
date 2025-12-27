@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"net/http"
@@ -9,5 +9,6 @@ import (
 func (app *Application) routes() http.Handler {
 	mux := chi.NewRouter()
 
+	mux.Get("/api/payment-intent", app.GetPaymentIntent)
 	return mux
 }
