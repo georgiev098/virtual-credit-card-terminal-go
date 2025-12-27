@@ -43,7 +43,7 @@ func (app *Application) serve() error {
 		WriteTimeout:      5 * time.Second,
 	}
 
-	app.InfoLog.Printf("Starting HTTP server in %s on port %d", app.Config.Env, app.Config.Port)
+	app.InfoLog.Printf("Starting bakcend server in %s on port %d", app.Config.Env, app.Config.Port)
 	return srv.ListenAndServe()
 }
 
@@ -54,39 +54,26 @@ func main() {
 	}
 	var cfg Config
 
-	flag.IntVar(&cfg.Port, "port", 4000, "Server port to listen on")
+	flag.IntVar(&cfg.Port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.Env, "dev", "dev", "Application environment {dev | prod}")
-	flag.StringVar(&cfg.Api, "api", "http://localhost:4000", "URL to Api")
 
 	flag.Parse()
 
 	cfg.Stripe.Key = os.Getenv("STRIPE_KEY")
 	cfg.Stripe.Secret = os.Getenv("STRIPE_SECRET")
 
-	if cfg.Stripe.Key == "" {
-		log.Fatal("STRIPE_KEY not set in environment")
-	}
-
-	if cfg.Stripe.Secret == "" {
-		log.Fatal("STRIPE_SECRET not set in environment")
-	}
-
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	tc := make(map[string]*template.Template)
-
 	app := &Application{
-		Config:        cfg,
-		InfoLog:       infoLog,
-		ErrorLog:      errLog,
-		TemplateCache: tc,
+		Config:   cfg,
+		InfoLog:  infoLog,
+		ErrorLog: errLog,
 	}
 
 	err = app.serve()
 	if err != nil {
-		app.ErrorLog.Println(err)
-		log.Fatal(err)
+		log.Fatal("Error loading .env file")
 	}
 
 }
