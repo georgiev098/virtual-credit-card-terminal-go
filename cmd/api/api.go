@@ -31,8 +31,9 @@ type Application struct {
 
 func (app *Application) serve() error {
 	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%d", app.Config.Port),
-		Handler:           app.routes(),
+		Addr: fmt.Sprintf(":%d", app.Config.Port),
+		// Handler:           app.routes(),
+		Handler:           app.enableCORS(app.routes()),
 		IdleTimeout:       30 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
