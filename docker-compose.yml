@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: rootpass
-      MARIADB_DATABASE: school
+      MARIADB_DATABASE: widgets
       MARIADB_USER: user
       MARIADB_PASSWORD: password
     ports:

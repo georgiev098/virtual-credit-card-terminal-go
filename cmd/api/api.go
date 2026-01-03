@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/driver"
 	"github.com/joho/godotenv"
 )
 
@@ -53,6 +54,7 @@ func main() {
 
 	flag.IntVar(&cfg.Port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.Env, "dev", "dev", "Application environment {dev | prod}")
+	flag.StringVar(&cfg.Db.Dsn, "dsn", fmt.Sprintf("%s:%s@tcp(localhost:3306)/widgets?parseTime=true&tls=false", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD")), "DSN")
 
 	flag.Parse()
 
@@ -61,6 +63,13 @@ func main() {
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	con, err := driver.OpenDB(cfg.Db.Dsn)
+	if err != nil {
+		errLog.Fatal(err)
+	}
+
+	defer con.Close()
 
 	app := &Application{
 		Config:   cfg,
