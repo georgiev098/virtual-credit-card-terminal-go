@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
+	"github.com/go-chi/chi/v5"
 )
 
 type StripePayload struct {
@@ -89,4 +90,25 @@ func (app *Application) enableCORS(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *Application) GetWidgetById(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	widgetId, _ := strconv.Atoi(id)
+
+	widget, err := app.DB.GetWidget(widgetId)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	out, err := json.Marshal(widget)
+
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.Write(out)
 }

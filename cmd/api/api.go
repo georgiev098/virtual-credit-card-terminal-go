@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/driver"
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	"github.com/joho/godotenv"
 )
 
@@ -28,6 +29,7 @@ type Application struct {
 	Config   Config
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
+	DB       models.DBModel
 }
 
 func (app *Application) serve() error {
@@ -75,6 +77,9 @@ func main() {
 		Config:   cfg,
 		InfoLog:  infoLog,
 		ErrorLog: errLog,
+		DB: models.DBModel{
+			DB: con,
+		},
 	}
 
 	err = app.serve()
