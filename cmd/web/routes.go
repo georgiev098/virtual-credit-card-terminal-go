@@ -16,6 +16,6 @@ func (app *Application) routes() http.Handler {
 
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
-	mux.Get("/buy-once", app.ChargeOnce)
+	mux.Get("/widget/{id}", app.ChargeOnce)
 	return mux
 }
