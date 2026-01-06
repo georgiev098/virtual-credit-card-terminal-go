@@ -58,7 +58,7 @@ type TransationStatus struct {
 	UpdateddAt time.Time `json:"-"`
 }
 
-type Transation struct {
+type User struct {
 	ID         int       `json:"id"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
@@ -68,7 +68,7 @@ type Transation struct {
 	UpdateddAt time.Time `json:"-"`
 }
 
-type User struct {
+type Transaction struct {
 	ID                  int       `json:"id"`
 	Amount              int       `json:"amount"`
 	TransactionStatusID int       `json:"transaction_status_id"`
@@ -114,4 +114,41 @@ func (m *DBModel) GetWidget(id int) (Widget, error) {
 	}
 
 	return widget, nil
+}
+
+func (m *DBModel) InsertTransaction(txn Transaction) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `INSERT INTO transactions (amount, currency, last_four, bank_return_code, transaction_status_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+
+	result, err := m.DB.ExecContext(ctx, stmt, txn.Amount, txn.Currency, txn.LastFour, txn.BankReturnCode, txn.TransactionStatusID, time.Now(), time.Now())
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
+}
+
+func (m *DBModel) InsertNewOrder(order Order) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := "INSERT INTO orders (widget_id, transaction_id, status_id, quantity, amount, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+
+	result, err := m.DB.ExecContext(ctx, stmt, order.WidgetID, order.TransactionID, order.StatusID, order.Quantity, order.Amount, time.Now(), time.Now())
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
+
 }

@@ -12,8 +12,8 @@
 
 <form action="/payment-succeeded" method="post" name="charge_form" id="charge_form" class="d-block needs-validation charge-form" autocomplete="off" novalidate="">
     <div class="mb-3">
-        <label for="amount" class="form-label">Amount</label>
-        <input type="text" class="form-control" id="amount" name="amount" required="" autocomplete="amount-new">   
+        <label for="charge_amount" class="form-label">Amount</label>
+        <input type="text" class="form-control" id="charge_amount" required="" autocomplete="charge_amount-new">   
     </div>
 
     <div class="mb-3">
@@ -44,6 +44,7 @@
     </div>
 
     <input type="hidden" name="payment_intent" id="payment_intent"/>
+    <input type="hidden" name="amount" id="amount"/>
     <input type="hidden" name="payment_method" id="payment_method"/>
     <input type="hidden" name="payment_amount" id="payment_amount"/>
     <input type="hidden" name="payment_currency" id="payment_currency"/>
@@ -55,6 +56,16 @@
 {{end}}
 
 {{define "js"}}
+<script>
+document.getElementById("charge_amount", (e)=>{
+if(e.target.value !== ""){
+document.getElementById("amount").value = e.target.value *100;
+}else {
+
+document.getElementById("amount").value = 0
+}
+})
+</script>
 <script src="https://js.stripe.com/v3/"></script>
 {{template "stripe-js" .}}
 {{end}}
