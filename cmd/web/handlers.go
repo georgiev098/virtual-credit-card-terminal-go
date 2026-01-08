@@ -14,6 +14,12 @@ func (app *Application) VirtualTerminal(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "home", nil); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
 func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

@@ -9,10 +9,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/driver"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	"github.com/joho/godotenv"
 )
+
+var session *scs.SessionManager
 
 type Config struct {
 	Port int
@@ -34,6 +37,7 @@ type Application struct {
 	TemplateCache map[string]*template.Template
 	version       string
 	DB            models.DBModel
+	Session       *scs.SessionManager
 }
 
 func (app *Application) serve() error {
@@ -78,12 +82,17 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Connect to DB
 	con, err := driver.OpenDB(cfg.Db.Dsn)
 	if err != nil {
 		errLog.Fatal(err)
 	}
 
 	defer con.Close()
+
+	// Create a new Session
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 24 * time.Hour
 
 	tc := make(map[string]*template.Template)
 
@@ -95,6 +104,7 @@ func main() {
 		DB: models.DBModel{
 			DB: con,
 		},
+		Session: sessionManager,
 	}
 
 	err = app.serve()
