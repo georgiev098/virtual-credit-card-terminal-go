@@ -1,0 +1,13 @@
+add_column("orders", "customer_id", "integer", {
+  "unsigned": true,
+  "null": false
+})
+
+sql(`
+ALTER TABLE orders
+ADD CONSTRAINT orders_customer_id_fk
+FOREIGN KEY (customer_id)
+REFERENCES customers(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+`)
