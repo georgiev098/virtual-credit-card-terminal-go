@@ -3,8 +3,10 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -28,6 +30,8 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	}
 
 	cardholder := r.Form.Get("cardholder_name")
+	firstName := r.Form.Get("first_name")
+	lastName := r.Form.Get("last_name")
 	email := r.Form.Get("cardholder_email")
 	paymentIntent := r.Form.Get("payment_intent")
 	paymentMethod := r.Form.Get("payment_method")
@@ -55,8 +59,19 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	expMonth := pm.Card.ExpMonth
 	expYear := pm.Card.ExpYear
 
+	// create new customer
+	customerID, err := app.SaveCustomer(firstName, lastName, email)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	app.InfoLog.Println(customerID)
+
 	data := make(map[string]any)
 	data["cardholder"] = cardholder
+	data["first_name"] = firstName
+	data["last_name"] = lastName
 	data["email"] = email
 	data["pi"] = paymentIntent
 	data["pm"] = paymentMethod
@@ -74,6 +89,23 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+}
+
+func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
+	customer := models.Customer{
+		FirstName:  firstName,
+		LastName:   lastName,
+		Email:      email,
+		CreatedAt:  time.Now(),
+		UpdateddAt: time.Now(),
+	}
+
+	newCustomerID, err := app.DB.InsertNewCustomer(customer)
+	if err != nil {
+		return 0, err
+	}
+
+	return newCustomerID, nil
 }
 
 func (app *Application) ChargeOnce(w http.ResponseWriter, r *http.Request) {

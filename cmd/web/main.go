@@ -82,6 +82,10 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Create a new Session
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 24 * time.Hour
+
 	// Connect to DB
 	con, err := driver.OpenDB(cfg.Db.Dsn)
 	if err != nil {
@@ -89,10 +93,6 @@ func main() {
 	}
 
 	defer con.Close()
-
-	// Create a new Session
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 24 * time.Hour
 
 	tc := make(map[string]*template.Template)
 
