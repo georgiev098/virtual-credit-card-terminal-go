@@ -125,13 +125,23 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	data["expiry_year"] = expYear
 	data["bank_return_code"] = pi.Charges.Data[0].ID
 
-	if err := app.renderTemplate(w, r, "succeeded", &templateData{
+	// write to session and redirect page
+	app.Session.Put(r.Context(), "receipt", data)
+
+	http.Redirect(w, r, "/receipt", http.StatusSeeOther)
+}
+
+func (app *Application) Receipt(w http.ResponseWriter, r *http.Request) {
+
+	data := app.Session.Get(r.Context(), "receipt").(map[string]any)
+	app.Session.Remove(r.Context(), "receipt")
+
+	if err := app.renderTemplate(w, r, "receipt", &templateData{
 		Data: data,
 	}); err != nil {
 		app.ErrorLog.Println(err)
 		return
 	}
-
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {

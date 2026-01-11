@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"html/template"
@@ -55,6 +56,7 @@ func (app *Application) serve() error {
 }
 
 func main() {
+	gob.Register(map[string]any{})
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
