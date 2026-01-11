@@ -78,6 +78,8 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		ExpiryYear:          int(expYear),
 		BankReturnCode:      bankReturnCode,
 		TransactionStatusID: 2,
+		PaymentIntent:       paymentIntent,
+		PaymentMethod:       paymentMethod,
 		CreatedAt:           time.Now(),
 		UpdateddAt:          time.Now(),
 	}
