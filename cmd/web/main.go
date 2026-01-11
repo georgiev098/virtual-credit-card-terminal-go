@@ -56,7 +56,7 @@ func (app *Application) serve() error {
 }
 
 func main() {
-	gob.Register(map[string]any{})
+	gob.Register(TransactionData{})
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")

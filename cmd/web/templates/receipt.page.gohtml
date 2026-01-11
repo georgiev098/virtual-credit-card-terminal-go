@@ -5,17 +5,17 @@
     {{end}}
 
     {{define "content"}}
+    {{$txn := index .Data "txn"}}
         <h2 class="mt-5">Payment Succeeded! </h2>
         <h2>
-        <p>Payment intent: {{index .Data "pi"}}</p>
-        <p>First Name: {{index .Data "first_name"}}</p>
-        <p>Last Name: {{index .Data "last_name"}}</p>
-        <p>Cardholder: {{index .Data "cardholder"}}</p>
-        <p>Email: {{index .Data "email"}}</p>
-        <p>Payment Method: {{index .Data "pm"}}</p>
-        <p>Payment Amount: {{index .Data "pa"}}</p>
-        <p>Currency: {{index .Data "pc"}}</p>
-        <p>Last Four: {{index .Data "last_four"}}</p>
-        <p>Bank Return Code: {{index .Data "bank_return_code"}}</p>
-        <p>Expiry Date: {{index .Data "expiry_month"}}/{{index .Data "expiry_year"}}</p>
+        <p>Payment intent: {{$txn.PaymentIntentID}}</p>
+        <p>First Name: {{$txn.FirstName}}</p>
+        <p>Last Name: {{$txn.LastName}}</p>
+        <p>Email: {{$txn.Email}}</p>
+        <p>Payment Method: {{$txn.PaymentMethodID}}</p>
+        <p>Payment Amount: {{formatCurrency $txn.PaymentAmount}}</p>
+        <p>Currency: {{$txn.PaymentCurrency}}</p>
+        <p>Last Four: {{$txn.LastFour}}</p>
+        <p>Bank Return Code: {{$txn.BankReturnCode}}</p>
+        <p>Expiry Date: {{$txn.ExpiryMonth}}/{{$txn.ExpiryYear}}</p>
     {{end}}
