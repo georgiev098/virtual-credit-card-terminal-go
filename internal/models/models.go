@@ -27,6 +27,8 @@ type Widget struct {
 	Name           string    `json:"name"`
 	Description    string    `json:"description"`
 	Image          string    `json:"image"`
+	IsRecurring    bool      `json:"is_recurring"`
+	PlanID         string    `json:"plan_id"`
 	InventoryLevel int       `json:"inventory_level"`
 	Price          int       `json:"price"`
 	CreatedAt      time.Time `json:"-"`
@@ -106,6 +108,8 @@ func (m *DBModel) GetWidget(id int) (Widget, error) {
         name,
         description,
         COALESCE(image, '') AS image,
+		is_recurring,
+		plan_id,
         inventory_level,
         price,
         created_at,
@@ -118,6 +122,8 @@ func (m *DBModel) GetWidget(id int) (Widget, error) {
 		&widget.Name,
 		&widget.Description,
 		&widget.Image,
+		&widget.IsRecurring,
+		&widget.PlanID,
 		&widget.InventoryLevel,
 		&widget.Price,
 		&widget.CreatedAt,

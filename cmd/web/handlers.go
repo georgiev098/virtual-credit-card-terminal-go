@@ -274,14 +274,20 @@ func (app *Application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 		app.ErrorLog.Println(err)
 	}
 }
-
 func (app *Application) BronzePlan(w http.ResponseWriter, r *http.Request) {
-	intMap := make(map[string]int)
-	intMap["plan_id"] = 1
+
+	widget, err := app.DB.GetWidget(2)
+	if err != nil {
+		app.ErrorLog.Print(err)
+		return
+	}
+
+	data := make(map[string]any)
+	data["widget"] = widget
 
 	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
-		IntMap: intMap,
-	}); err != nil {
-		app.ErrorLog.Print(err)
+		Data: data,
+	}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
 	}
 }
