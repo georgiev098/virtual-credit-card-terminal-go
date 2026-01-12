@@ -10,7 +10,7 @@ import (
 
 type templateData struct {
 	StringMap       map[string]string
-	IntMap          map[int]int
+	IntMap          map[string]int
 	FloatMap        map[float32]float32
 	Data            map[string]any
 	CSRFToken       string

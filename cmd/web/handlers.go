@@ -10,18 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (app *Application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "terminal", nil, "stripe-js"); err != nil {
-		app.ErrorLog.Println(err)
-	}
-}
-
-func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "home", nil); err != nil {
-		app.ErrorLog.Println(err)
-	}
-}
-
 type TransactionData struct {
 	FirstName       string
 	LastName        string
@@ -34,6 +22,18 @@ type TransactionData struct {
 	ExpiryMonth     int
 	ExpiryYear      int
 	BankReturnCode  string
+}
+
+func (app *Application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "terminal", nil, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "home", nil); err != nil {
+		app.ErrorLog.Println(err)
+	}
 }
 
 func (app *Application) GetTransactionData(r *http.Request) (TransactionData, error) {
@@ -272,5 +272,16 @@ func (app *Application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 		Data: data,
 	}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) BronzePlan(w http.ResponseWriter, r *http.Request) {
+	intMap := make(map[string]int)
+	intMap["plan_id"] = 1
+
+	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
+		IntMap: intMap,
+	}); err != nil {
+		app.ErrorLog.Print(err)
 	}
 }
