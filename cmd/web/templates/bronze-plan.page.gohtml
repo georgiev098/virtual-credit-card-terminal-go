@@ -75,7 +75,117 @@ Bronze Plan
 {{end}}
 
 {{define "js"}}
+{{$widget := index .Data "widget"}}
 <script src="https://js.stripe.com/v3/"></script>
-{{template "stripe-js" .}}
+<script>
+let card;
+let stripe;
+const cardMessages = document.getElementById("card-messages");
+const payButton = document.getElementById("pay-button");
+const processing = document.getElementById("processing-payment") 
+stripe = Stripe('{{.StripePublicKey}}')
+
+    function hidePayButton(){
+    payButton.classList.add("d-none")
+    processing.classList.remove("d-none")
+    }
+
+    function showPayButtons(){
+    payButton.classList.remove("d-none")
+    processing.classList.add("d-none")
+    }
+
+    function showError(message){
+        cardMessages.classList.add("alert-danger");
+        cardMessages.classList.remove("alert-success");
+        cardMessages.classList.remove("d-none");
+        cardMessages.innerText = message;
+    }
+
+    function showCardSuccess(){
+        cardMessages.classList.remove("alert-danger");
+        cardMessages.classList.add("alert-success");
+        cardMessages.classList.remove("d-none");
+        cardMessages.innerText = "Transaction successfull!";
+    }
+
+        (function(){
+        const elements = stripe.elements();
+        const style = {
+            base: {
+                fontSize:"16px",
+                lineHeight:"24px"
+            }
+        };
+
+        card = elements.create("card",{
+            style:style,
+            hidePostalCode: true
+        });
+
+        card.mount("#card-element");
+
+        card.addEventListener("change",(e)=>{
+            let displayErr = document.getElementById("card-errors");
+            if(e.error){
+                displayErr.classList.remove("d-none");
+                displayErr.textContent = e.error.message;
+            } else {
+                displayErr.classList.add("d-none");
+                displayErr.textContent = "";
+            }
+        });
+    })();
+
+    function val(event){
+        let form = document.getElementById("charge_form")
+        if(form.checkValidity()===false){
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add("was-validated");
+            return;
+        }
+        form.classList.add("was-validated")
+        hidePayButton()
+         
+         let amountToCharge = document.getElementById("amount").value 
+
+         stripe.createPaymentMethod({
+            type:"card",
+            card:card,
+            billing_details: {
+              email:document.getElementById("cardholder-email").value  
+            }
+         }).then(stripePaymentMethodHandler);
+
+         function stripePaymentMethodHandler(result){
+         if(result.error){showError(result.error.message)}else{
+            {{/* create a customer and subscribe to plan */}}
+            let payload = {
+                plan: '{{$widget.PlanID}}',
+                payment_method: result.paymentMethod.id,
+                email:document.getElementById("cardholder-email").value
+                last_four: result.paymentMethod.card.last4,
+            }
+
+            const requestOptions = {
+                method:"POST",
+                headers: {
+                  "Accept":"application/json",
+                  "Content-Type":"application/json"  
+                },
+                body: JSON.stringify(payload)
+            }
+         }
+
+         fetch("http://localhost:4001/api/craete-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
+         console.log(data)}
+         processing.classList.add("d-none")
+         {{/* set hidden vars & submit form */}}
+         )
+        }
+    }
+ </script>
 {{end}}
+
 
