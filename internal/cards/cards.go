@@ -2,8 +2,10 @@ package cards
 
 import (
 	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/paymentintent"
 	"github.com/stripe/stripe-go/v72/paymentmethod"
+	"github.com/stripe/stripe-go/v72/sub"
 )
 
 type Card struct {
@@ -64,6 +66,54 @@ func (c *Card) RetrievePaymentIntent(s string) (*stripe.PaymentIntent, error) {
 	}
 
 	return pi, nil
+}
+
+func (c *Card) CraeteCustomer(pm string, email string) (*stripe.Customer, string, error) {
+	stripe.Key = c.Secret
+
+	customerParams := &stripe.CustomerParams{
+		PaymentMethod: stripe.String(pm),
+		Email:         stripe.String(email),
+		InvoiceSettings: &stripe.CustomerInvoiceSettingsParams{
+			DefaultPaymentMethod: stripe.String(pm),
+		},
+	}
+
+	cust, err := customer.New(customerParams)
+	if err != nil {
+		msg := ""
+		if stripeErr, ok := err.(*stripe.Error); ok {
+			msg = cardErrMsg(stripeErr.Code)
+		}
+		return nil, msg, err
+	}
+
+	return cust, "", nil
+}
+
+func (c *Card) SubscribeToPlan(cust *stripe.Customer, plan string, email string, last4 string, cardType string) (string, error) {
+	stripeCustomerID := cust.ID
+	items := []*stripe.SubscriptionItemsParams{
+		{
+			Plan: stripe.String(plan),
+		},
+	}
+	params := &stripe.SubscriptionParams{
+		Customer: stripe.String(stripeCustomerID),
+		Items:    items,
+	}
+
+	params.AddMetadata("last_four", last4)
+	params.AddMetadata("card_type", cardType)
+	params.AddExpand("lastest_invoice.payment_intent")
+
+	subscription, err := sub.New(params)
+	if err != nil {
+		return "", err
+	}
+
+	return subscription.ID, nil
+
 }
 
 func cardErrMsg(code stripe.ErrorCode) string {
