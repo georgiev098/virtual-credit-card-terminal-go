@@ -14,7 +14,7 @@ Bronze Plan
 
 <form action="/payment-succeeded" method="post" name="charge_form" id="charge_form" class="d-block needs-validation charge-form" autocomplete="off" novalidate="">
 
-<input type="hidden" name="product_id" value="{{$widget.ID}}">
+<input type="hidden" name="product_id" id="product_id" value="{{$widget.ID}}">
 <input type="hidden" name="amount" id="amount" value="{{$widget.Price}}">
 
 <p> {{$widget.Description}}</p>
@@ -163,9 +163,17 @@ stripe = Stripe('{{.StripePublicKey}}')
             {{/* create a customer and subscribe to plan */}}
             let payload = {
                 plan: '{{$widget.PlanID}}',
+                currency:"eur",
                 payment_method: result.paymentMethod.id,
                 email:document.getElementById("cardholder-email").value,
                 last_four: result.paymentMethod.card.last4,
+                pruduct_id: document.getElementById("product_id").value,
+                card_brand:  result.paymentMethod.card.brand,
+                expiry_month: result.paymentMethod.card.exp_month,
+                expiry_year: result.paymentMethod.card.exp_year,
+                first_name: document.getElementById("first_name").value,
+                last_name: document.getElementById("last_name").value,
+                amount: document.getElementById("amount").value
             }
 
             const requestOptions = {
@@ -179,7 +187,12 @@ stripe = Stripe('{{.StripePublicKey}}')
             fetch("http://localhost:4001/api/craete-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
             console.log(data)
             processing.classList.add("d-none")
-            {{/* set hidden vars & submit form */}}
+            showCardSuccess();
+            sessionStorage.first_name = document.getElementById("first_name").value;
+            sessionStorage.last_name = document.getElementById("last_name").value;
+            sessionStorage.amout = "{{formatCurr $widget.Price}}";
+            sessionStorage.last_four = result.paymentMethod.card.last4;
+            location.href = "/receipt/bronze"
                     }
                 )
             }

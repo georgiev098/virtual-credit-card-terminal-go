@@ -274,6 +274,7 @@ func (app *Application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 		app.ErrorLog.Println(err)
 	}
 }
+
 func (app *Application) BronzePlan(w http.ResponseWriter, r *http.Request) {
 
 	widget, err := app.DB.GetWidget(2)
@@ -288,6 +289,13 @@ func (app *Application) BronzePlan(w http.ResponseWriter, r *http.Request) {
 	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{
 		Data: data,
 	}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) BronzePlanReceipt(w http.ResponseWriter, r *http.Request) {
+
+	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
 	}
 }
