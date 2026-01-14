@@ -164,7 +164,7 @@ stripe = Stripe('{{.StripePublicKey}}')
             let payload = {
                 plan: '{{$widget.PlanID}}',
                 payment_method: result.paymentMethod.id,
-                email:document.getElementById("cardholder-email").value
+                email:document.getElementById("cardholder-email").value,
                 last_four: result.paymentMethod.card.last4,
             }
 
@@ -176,14 +176,15 @@ stripe = Stripe('{{.StripePublicKey}}')
                 },
                 body: JSON.stringify(payload)
             }
+            fetch("http://localhost:4001/api/craete-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
+            console.log(data)
+            processing.classList.add("d-none")
+            {{/* set hidden vars & submit form */}}
+                    }
+                )
+            }
          }
 
-         fetch("http://localhost:4001/api/craete-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
-         console.log(data)}
-         processing.classList.add("d-none")
-         {{/* set hidden vars & submit form */}}
-         )
-        }
     }
  </script>
 {{end}}

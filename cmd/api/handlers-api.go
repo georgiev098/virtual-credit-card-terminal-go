@@ -125,8 +125,28 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		return
 	}
 
+	card := cards.Card{
+		Secret:   app.Config.Stripe.Secret,
+		Key:      app.Config.Stripe.Key,
+		Currency: data.Currency,
+	}
+
+	stripeCustomer, msg, err := card.CraeteCustomer(data.PaymentMethod, data.Email)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	subscribtionID, err := card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	app.InfoLog.Println("subscribtion ID is:", subscribtionID)
+
 	okay := true
-	msg := ""
+	// msg := ""
 
 	jsonResp := JSONResp{
 		OK:      okay,
