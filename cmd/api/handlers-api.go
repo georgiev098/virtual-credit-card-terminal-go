@@ -232,7 +232,7 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) {
 	var userInput struct {
 		Email    string `json:"email"`
-		Password string `string:"password"`
+		Password string `json:"password"`
 	}
 
 	err := app.ReadJSON(w, r, &userInput)
@@ -245,6 +245,7 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 	user, err := app.DB.GetUserByEmail(userInput.Email)
 	if err != nil {
 		app.InvalidCredentials(w)
+		app.ErrorLog.Println(err)
 		return
 	}
 
@@ -264,12 +265,12 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 	// send resp
 
 	var payload struct {
-		Error  bool   `json:"error"`
-		Mesage string `json:"message"`
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
 	}
 
 	payload.Error = false
-	payload.Mesage = "Success!"
+	payload.Message = "Success!"
 
 	_ = app.WriteJSON(w, http.StatusOK, payload)
 }
