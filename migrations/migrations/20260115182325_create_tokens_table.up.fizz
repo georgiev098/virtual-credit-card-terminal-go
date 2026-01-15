@@ -1,0 +1,12 @@
+create_table("tokens") {
+  t.Column("id", "integer", {primary_key: true})
+  t.Column("user_id", "integer", {"null": false})
+  t.Column("name", "string", {"null": false})
+  t.Column("email", "string", {"null": false})
+  t.Column("token_hash", "string", {"null": false})
+  t.Timestamps()
+}
+
+sql("ALTER TABLE tokens MODIFY token_hash VARBINARY(255)")
+sql("ALTER TABLE tokens ALTER COLUMN created_at SET DEFAULT now()")
+sql("ALTER TABLE tokens ALTER COLUMN updated_at SET DEFAULT now()")

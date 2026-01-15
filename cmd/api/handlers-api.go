@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -260,17 +261,31 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 		app.InvalidCredentials(w)
 		return
 	}
-	// generate token
 
+	// generate token
+	token, err := models.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	// save token to DB
+	err = app.DB.InsertToken(token, user)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
 	// send resp
 
 	var payload struct {
-		Error   bool   `json:"error"`
-		Message string `json:"message"`
+		Error   bool          `json:"error"`
+		Message string        `json:"message"`
+		Token   *models.Token `json:"authentication_token"`
 	}
 
 	payload.Error = false
-	payload.Message = "Success!"
+	payload.Message = fmt.Sprintf("Token for %s craeted!", user.FirstName)
+	payload.Token = token
 
 	_ = app.WriteJSON(w, http.StatusOK, payload)
 }
