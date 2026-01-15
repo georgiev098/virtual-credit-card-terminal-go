@@ -6,6 +6,8 @@ Login
 
 {{define "content"}}
 
+<div class="alert alert-danger text-center d-none" id="login-messages"></div>
+
 <form action="" method="post" name="login_form" id="login_form" class="d-block needs-validation charge-form" autocomplete="off" novalidate="">
 <h2 class="mt-2 text-center mb-3">Login</h2>
 <hr>
@@ -31,6 +33,22 @@ Login
 
 {{define "js"}}
 <script>
+    let loginMessages = document.getElementById("login-messages");
+
+    function showError(message){
+        loginMessages.classList.add("alert-danger");
+        loginMessages.classList.remove("alert-success");
+        loginMessages.classList.remove("d-none");
+        loginMessages.innerText = message;
+    }
+
+    function showSuccess(){
+        loginMessages.classList.remove("alert-danger");
+        loginMessages.classList.add("alert-success");
+        loginMessages.classList.remove("d-none");
+        loginMessages.innerText = "Login successfull!";
+    }
+
 
     function val(e){
         let form = document.getElementById("login_form")
@@ -59,6 +77,14 @@ Login
 
         fetch("http://localhost:4001/api/authenticate", requestOptions).then(resp=>resp.json()).then(resp => {
                 console.log(resp)
+
+                if(resp.error === false){
+                    localStorage.setItem("token",resp.authentication_token.token);
+                    localStorage.setItem("token_expiry",resp.authentication_token.expiry);
+                    showSuccess()
+                } else {
+                    showError(resp.message)
+                }
         })
 
     }
