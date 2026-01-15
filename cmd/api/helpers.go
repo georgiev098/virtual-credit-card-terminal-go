@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *Application) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
@@ -41,6 +43,7 @@ func (app *Application) BadRequest(w http.ResponseWriter, r *http.Request, err e
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
 	w.Write(out)
 	return nil
 }
@@ -61,4 +64,34 @@ func (app *Application) WriteJSON(w http.ResponseWriter, status int, data interf
 	w.WriteHeader(status)
 	w.Write(out)
 	return nil
+}
+
+func (app *Application) InvalidCredentials(w http.ResponseWriter) error {
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	payload.Error = true
+	payload.Message = "Invalid authentication credentials."
+	err := app.WriteJSON(w, http.StatusUnauthorized, payload)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (app *Application) ValidatePassword(hash string, password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return true, nil
 }

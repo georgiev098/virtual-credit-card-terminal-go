@@ -241,6 +241,28 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// get user from db
+	user, err := app.DB.GetUserByEmail(userInput.Email)
+	if err != nil {
+		app.InvalidCredentials(w)
+		return
+	}
+
+	// validate passsword
+	validPass, err := app.ValidatePassword(user.Password, userInput.Password)
+	if err != nil {
+		app.InvalidCredentials(w)
+		return
+	}
+
+	if !validPass {
+		app.InvalidCredentials(w)
+		return
+	}
+	// generate token
+
+	// send resp
+
 	var payload struct {
 		Error  bool   `json:"error"`
 		Mesage string `json:"message"`

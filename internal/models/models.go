@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -188,4 +189,23 @@ func (m *DBModel) InsertNewCustomer(customer Customer) (int, error) {
 		return 0, err
 	}
 	return int(id), nil
+}
+
+func (m *DBModel) GetUserByEmail(email string) (User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	emailLower := strings.ToLower(email)
+	var u User
+
+	stmt := "SELECT * FROM users WHERE email = ?"
+
+	row := m.DB.QueryRowContext(ctx, stmt, emailLower)
+
+	err := row.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Password, &u.CreatedAt, &u.UpdateddAt)
+	if err != nil {
+		return u, err
+	}
+
+	return u, nil
 }
