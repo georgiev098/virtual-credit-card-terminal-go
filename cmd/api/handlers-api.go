@@ -249,10 +249,7 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 	payload.Error = false
 	payload.Mesage = "Success!"
 
-	out, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(out)
+	_ = app.WriteJSON(w, http.StatusOK, payload)
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
