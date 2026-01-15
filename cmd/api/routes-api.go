@@ -14,5 +14,8 @@ func (app *Application) routes() http.Handler {
 
 	mux.Get("/api/widget/{id}", app.GetWidgetById)
 
+	// auth
+	mux.Post("/api/authenticate", app.CraeteAuthToken)
+
 	return mux
 }

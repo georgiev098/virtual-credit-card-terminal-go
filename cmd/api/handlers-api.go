@@ -229,6 +229,32 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 	w.Write(out)
 }
 
+func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) {
+	var userInput struct {
+		Email    string `json:"email"`
+		Password string `string:"password"`
+	}
+
+	err := app.ReadJSON(w, r, &userInput)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	var payload struct {
+		Error  bool   `json:"error"`
+		Mesage string `json:"message"`
+	}
+
+	payload.Error = false
+	payload.Mesage = "Success!"
+
+	out, _ := json.Marshal(payload)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,

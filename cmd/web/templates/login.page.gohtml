@@ -6,7 +6,7 @@ Login
 
 {{define "content"}}
 
-<form action="" method="post" name="charge_form" id="charge_form" class="d-block needs-validation charge-form" autocomplete="off" novalidate="">
+<form action="" method="post" name="login_form" id="login_form" class="d-block needs-validation charge-form" autocomplete="off" novalidate="">
 <h2 class="mt-2 text-center mb-3">Login</h2>
 <hr>
     
@@ -32,7 +32,36 @@ Login
 {{define "js"}}
 <script>
 
-    function val(e){}
+    function val(e){
+        let form = document.getElementById("login_form")
+        if(form.checkValidity()===false){
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add("was-validated");
+            return;
+        }
+        form.classList.add("was-validated")
+         
+
+         const payload = {
+            email: document.getElementById("email").value,
+            password:document.getElementById("password").value,
+         }
+
+         const requestOptions = {
+            method: "POST",
+            headers: {
+                "Accept":"application/json",
+                "Content-Type" : "application/json"
+                },
+                body: JSON.stringify(payload)
+             };
+
+        fetch("http://localhost:4001/api/authenticate", requestOptions).then(resp=>resp.json()).then(resp => {
+                console.log(resp)
+        })
+
+    }
 
 </script>
 
