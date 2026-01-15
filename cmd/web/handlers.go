@@ -299,3 +299,9 @@ func (app *Application) BronzePlanReceipt(w http.ResponseWriter, r *http.Request
 		app.ErrorLog.Println(err)
 	}
 }
+
+func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "login", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
