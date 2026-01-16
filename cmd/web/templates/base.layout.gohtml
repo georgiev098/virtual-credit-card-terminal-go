@@ -73,6 +73,32 @@
 
       location.href = "/login"
     }
+
+    function checkAuth(){
+    if(localStorage.getItem("token") === null){
+      location.href = "/login"
+      return
+    } else {
+        let token = localStorage.getItem("token")
+
+        const headers = new Headers()
+        headers.append("Content-type", "application/json")
+        headers.append("Authorization", "Bearer " + token)
+
+        const reqOptions = {
+          method: "POST",
+          headers,
+        }
+
+        fetch("http://localhost:4001/api/is-authenticated",reqOptions).then(resp=>resp.json()).then(data=>{
+          if(data.error === true){
+          location.href = "/login"
+          } else {
+              console.log("Logged in!", data)
+            }
+        })
+      }
+    }
   </script>
   {{block "js".}}{{end}}
   </body>

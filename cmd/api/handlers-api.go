@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
@@ -288,6 +290,55 @@ func (app *Application) CraeteAuthToken(w http.ResponseWriter, r *http.Request) 
 	payload.Token = token
 
 	_ = app.WriteJSON(w, http.StatusOK, payload)
+}
+
+func (app *Application) AuthenticateToken(r *http.Request) (*models.User, error) {
+	authHeader := r.Header.Get("Authorization")
+
+	if authHeader == "" {
+		return nil, errors.New("No authorization header received.")
+	}
+
+	headerParts := strings.Split(authHeader, " ")
+
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return nil, errors.New("No authorization header received.")
+	}
+
+	headerToken := headerParts[1]
+
+	if len(headerToken) != 26 {
+		return nil, errors.New("Authentication token wrong length.")
+	}
+
+	// get user from tokens table
+	user, err := app.DB.GetUserByToken(headerToken)
+	if err != nil {
+		return nil, errors.New("No matching users found")
+	}
+
+	return user, nil
+}
+
+func (app *Application) CheckIsAuthenticated(w http.ResponseWriter, r *http.Request) {
+
+	// validate token and get user
+	user, err := app.AuthenticateToken(r)
+	if err != nil {
+		app.InvalidCredentials(w)
+		return
+	}
+
+	// valid user
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	payload.Error = false
+	payload.Message = fmt.Sprintf("Authenticated user %s", user.Email)
+
+	app.WriteJSON(w, http.StatusOK, payload)
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {

@@ -62,3 +62,30 @@ func (m *DBModel) InsertToken(token *Token, u User) error {
 
 	return nil
 }
+
+func (m *DBModel) GetUserByToken(token string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	tokenHash := sha256.Sum256([]byte(token))
+	var user User
+
+	stmt := `SELECT u.id, u.first_name, u.last_name, u.email
+	 FROM users u 
+	 INNER JOIN tokens t ON (u.id = t.user_id)  
+	 WHERE t.token_hash = ?`
+
+	err := m.DB.QueryRowContext(ctx, stmt, tokenHash[:]).Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+
+}
