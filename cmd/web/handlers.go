@@ -25,7 +25,7 @@ type TransactionData struct {
 }
 
 func (app *Application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "terminal", nil, "stripe-js"); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", nil); err != nil {
 		app.ErrorLog.Println(err)
 	}
 }
