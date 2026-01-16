@@ -1,0 +1,4 @@
+add_column("tokens", "expiry_date", "datetime", {
+  null: true,
+  default: nil,
+})
