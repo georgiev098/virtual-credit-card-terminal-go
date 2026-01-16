@@ -18,5 +18,9 @@ func (app *Application) routes() http.Handler {
 	mux.Post("/api/authenticate", app.CraeteAuthToken)
 	mux.Post("/api/is-authenticated", app.CheckIsAuthenticated)
 
+	mux.Route("/api/admin/", func(r chi.Router) {
+		mux.Use(app.Auth)
+	})
+
 	return mux
 }
