@@ -294,7 +294,6 @@ func (app *Application) BronzePlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) BronzePlanReceipt(w http.ResponseWriter, r *http.Request) {
-
 	if err := app.renderTemplate(w, r, "receipt-plan", &templateData{}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
 	}
@@ -304,4 +303,40 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	if err := app.renderTemplate(w, r, "login", &templateData{}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
 	}
+}
+
+func (app *Application) PostLogin(w http.ResponseWriter, r *http.Request) {
+	if err := app.Session.RenewToken(r.Context()); err != nil {
+		app.ErrorLog.Println(err)
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		app.ErrorLog.Println(err)
+		return
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	app.InfoLog.Println(password)
+	id, err := app.DB.Authenticate(email, password)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	app.InfoLog.Println(id)
+
+	app.Session.Put(r.Context(), "userID", id)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+
+}
+
+func (app *Application) Logout(w http.ResponseWriter, r *http.Request) {
+	app.Session.Destroy(r.Context())
+	app.Session.RenewToken(r.Context())
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

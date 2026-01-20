@@ -63,7 +63,7 @@
     </p>
 
     <p>
-    <a class="btn btn-primary" href="/virtual-terminal">Charge nother card</a>
+    <a class="btn btn-primary" href="/admin/virtual-terminal">Charge nother card</a>
     </p>
 </div>
 
@@ -76,7 +76,7 @@
 checkAuth()
 document.getElementById("charge_amount").addEventListener("change", e =>{
 if(e.target.value !== ""){
- const val = parseFloat(e.target.value);
+ const val = parseFloat(e.target.value);    
     document.getElementById("amount").value = Number.isFinite(val) ? Math.round(val * 100) : 0;
 }else {
 
