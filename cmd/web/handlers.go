@@ -340,3 +340,9 @@ func (app *Application) Logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func (app *Application) ForgotReset(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "forgot-password", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
