@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/driver"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
@@ -84,10 +85,6 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	// Create a new Session
-	sessionManager := scs.New()
-	sessionManager.Lifetime = 24 * time.Hour
-
 	// Connect to DB
 	con, err := driver.OpenDB(cfg.Db.Dsn)
 	if err != nil {
@@ -95,6 +92,11 @@ func main() {
 	}
 
 	defer con.Close()
+
+	// Create a new Session
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 24 * time.Hour
+	sessionManager.Store = mysqlstore.New(con)
 
 	tc := make(map[string]*template.Template)
 
