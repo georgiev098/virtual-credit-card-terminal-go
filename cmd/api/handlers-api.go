@@ -407,6 +407,26 @@ func (app *Application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r
 
 }
 
+func (app *Application) SendResetPasswordLink(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email string `json:"email"`
+	}
+
+	err := app.ReadJSON(w, r, &payload)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	var data struct {
+		Link string
+	}
+
+	data.Link = "http://wwww.help.com"
+
+	// send email
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,

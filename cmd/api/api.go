@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/driver"
@@ -22,6 +23,12 @@ type Config struct {
 	Stripe struct {
 		Secret string
 		Key    string
+	}
+	SMTP struct {
+		Username string
+		Password string
+		Port     int
+		Host     string
 	}
 }
 
@@ -57,6 +64,16 @@ func main() {
 	flag.IntVar(&cfg.Port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.Env, "dev", "dev", "Application environment {dev | prod}")
 	flag.StringVar(&cfg.Db.Dsn, "dsn", fmt.Sprintf("%s:%s@tcp(localhost:3306)/widgets?parseTime=true&tls=false", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD")), "DSN")
+	// SMTP
+	flag.StringVar(&cfg.SMTP.Host, "smtp-host", os.Getenv("MAILTRAP_HOST"), "SMTP Host")
+	flag.StringVar(&cfg.SMTP.Username, "smtp-username", os.Getenv("MAILTRAP_USER"), "SMTP Username")
+	flag.StringVar(&cfg.SMTP.Password, "smtp-password", os.Getenv("MAILTRAP_PASSWORD"), "SMTP Password")
+
+	smtpPort := 2525
+	if p, err := strconv.Atoi(os.Getenv("MAILTRAP_PORT")); err == nil {
+		smtpPort = p
+	}
+	flag.IntVar(&cfg.SMTP.Port, "port", smtpPort, "SMTP port")
 
 	flag.Parse()
 
