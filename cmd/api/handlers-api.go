@@ -425,6 +425,21 @@ func (app *Application) SendResetPasswordLink(w http.ResponseWriter, r *http.Req
 	data.Link = "http://wwww.help.com"
 
 	// send email
+	err = app.SendEmail("info@widgets.com", "info@widgets.com", "password reset request", "password-reset", data)
+	if err != nil {
+		app.ErrorLog.Println(err)
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	resp.Error = false
+
+	app.WriteJSON(w, http.StatusCreated, resp)
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {

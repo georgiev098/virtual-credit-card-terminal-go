@@ -6,7 +6,6 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"log"
 	"time"
 
 	mail "github.com/xhit/go-simple-mail/v2"
@@ -78,7 +77,8 @@ func (app *Application) SendEmail(from string, to string, subject string, tmpl s
 	smtpClient, err := server.Connect()
 
 	if err != nil {
-		log.Fatal(err)
+		app.ErrorLog.Println(err)
+		return err
 	}
 
 	email := mail.NewMSG()
