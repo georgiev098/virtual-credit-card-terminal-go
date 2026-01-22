@@ -30,6 +30,8 @@ type Config struct {
 		Port     int
 		Host     string
 	}
+	SecretKey   string
+	FrontEndURL string
 }
 
 type Application struct {
@@ -64,6 +66,8 @@ func main() {
 	flag.IntVar(&cfg.Port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.Env, "dev", "dev", "Application environment {dev | prod}")
 	flag.StringVar(&cfg.Db.Dsn, "dsn", fmt.Sprintf("%s:%s@tcp(localhost:3306)/widgets?parseTime=true&tls=false", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD")), "DSN")
+	flag.StringVar(&cfg.SecretKey, "secret-key", os.Getenv("SECRET_KEY"), "Secret Key")
+	flag.StringVar(&cfg.FrontEndURL, "front-end-url", os.Getenv("FRONT_END_URL"), "Front End URL")
 	// SMTP
 	flag.StringVar(&cfg.SMTP.Host, "smtp-host", os.Getenv("MAILTRAP_HOST"), "SMTP Host")
 	flag.StringVar(&cfg.SMTP.Username, "smtp-username", os.Getenv("MAILTRAP_USERNAME"), "SMTP Username")
