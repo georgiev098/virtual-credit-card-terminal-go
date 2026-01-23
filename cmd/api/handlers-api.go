@@ -14,6 +14,7 @@ import (
 	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v72"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type StripePayload struct {
@@ -449,7 +450,7 @@ func (app *Application) SendResetPasswordLink(w http.ResponseWriter, r *http.Req
 	data.Link = signedLink
 
 	// send email
-	err = app.SendEmail("info@widgets.com", payload.Email, "password reset request", "password-reset", data)
+	err = app.SendEmail("info@widgets.com", payload.Email, "password reset request", "forgot-password", data)
 	if err != nil {
 		app.ErrorLog.Println(err)
 		app.BadRequest(w, r, err)
@@ -464,6 +465,48 @@ func (app *Application) SendResetPasswordLink(w http.ResponseWriter, r *http.Req
 	resp.Error = false
 
 	app.WriteJSON(w, http.StatusCreated, resp)
+}
+
+func (app *Application) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.ReadJSON(w, r, &payload)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	user, err := app.DB.GetUserByEmail(payload.Email)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	newHash, err := bcrypt.GenerateFromPassword([]byte(payload.Password), 12)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	err = app.DB.UpdateUserPassword(user, string(newHash))
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	resp := struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}{
+		Error:   false,
+		Message: "Password Changed",
+	}
+
+	app.WriteJSON(w, http.StatusCreated, resp)
+
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
