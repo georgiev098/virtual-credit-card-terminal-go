@@ -358,9 +358,17 @@ func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request
 	}
 
 	valid := signer.VerifyToken(testURL)
-	if valid {
-		w.Write([]byte("valid"))
-	} else {
-		w.Write([]byte("invalid"))
+	if !valid {
+		app.ErrorLog.Println("Invalid URL. Tempering detected")
+		return
+	}
+
+	data := make(map[string]any, 0)
+	data["email"] = r.URL.Query().Get("email")
+
+	if err := app.renderTemplate(w, r, "reset-password", &templateData{
+		Data: data,
+	}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
 	}
 }
