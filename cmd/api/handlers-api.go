@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/encryption"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
 	"github.com/go-chi/chi/v5"
@@ -479,7 +480,17 @@ func (app *Application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.DB.GetUserByEmail(payload.Email)
+	decryptor := encryption.Encryption{Key: []byte(app.Config.SecretKey)}
+
+	decryptedEmail, err := decryptor.Decrypt(payload.Email)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	app.InfoLog.Println(decryptedEmail)
+
+	user, err := app.DB.GetUserByEmail(decryptedEmail)
 	if err != nil {
 		app.BadRequest(w, r, err)
 		return

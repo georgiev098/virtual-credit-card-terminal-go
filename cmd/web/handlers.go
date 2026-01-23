@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/encryption"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
 	"github.com/go-chi/chi/v5"
@@ -350,6 +351,7 @@ func (app *Application) ForgotReset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request) {
+	email := r.URL.Query().Get("email")
 	theURL := r.RequestURI
 	testURL := fmt.Sprintf("%s%s", app.Config.FrontEndURL, theURL)
 
@@ -370,8 +372,19 @@ func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	encryptor := encryption.Encryption{
+		Key: []byte(app.Config.SecretKey),
+	}
+
+	encryptedEmail, err := encryptor.Encrypt(email)
+	if err != nil {
+		app.ErrorLog.Println("Encryption failed")
+		return
+	}
+
+	app.InfoLog.Println(encryptedEmail)
 	data := make(map[string]any, 0)
-	data["email"] = r.URL.Query().Get("email")
+	data["email"] = encryptedEmail
 
 	if err := app.renderTemplate(w, r, "reset-password", &templateData{
 		Data: data,
