@@ -392,3 +392,15 @@ func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request
 		app.ErrorLog.Println(err)
 	}
 }
+
+func (app *Application) AllSales(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "all-sales", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) AllSubcriptions(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "all-subscriptions", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
