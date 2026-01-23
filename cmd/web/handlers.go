@@ -363,6 +363,13 @@ func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// make sure not expired
+	expired := signer.IsTokenExpired(testURL, 60)
+	if expired {
+		app.ErrorLog.Println("Link expired.")
+		return
+	}
+
 	data := make(map[string]any, 0)
 	data["email"] = r.URL.Query().Get("email")
 
