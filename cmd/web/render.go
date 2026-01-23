@@ -42,6 +42,12 @@ func (app *Application) addDefaultData(td *templateData, r *http.Request) *templ
 	// Pull Stripe public key from config
 	td.StripePublicKey = app.Config.Stripe.Key
 
+	if app.Session.Exists(r.Context(), "userID") {
+		td.IsAuthenticated = 1
+	} else {
+		td.IsAuthenticated = 0
+	}
+
 	return td
 }
 
