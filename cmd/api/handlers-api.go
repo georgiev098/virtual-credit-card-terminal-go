@@ -11,6 +11,7 @@ import (
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
+	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v72"
 )
@@ -418,11 +419,34 @@ func (app *Application) SendResetPasswordLink(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// verify that email exists
+	_, err = app.DB.GetUserByEmail(payload.Email)
+	if err != nil {
+		var resp struct {
+			Error   bool   `json:"error"`
+			Message string `json:"message"`
+		}
+
+		resp.Error = true
+		resp.Message = "No matching email found on our system."
+
+		app.WriteJSON(w, http.StatusNotAcceptable, resp)
+		return
+	}
+
+	link := fmt.Sprintf("%s/reset-password?email=%s", app.Config.FrontEndURL, payload.Email)
+
+	sign := urlsigner.Signer{
+		Secret: []byte(app.Config.SecretKey),
+	}
+
+	signedLink := sign.GenerateTokenFromString(link)
+
 	var data struct {
 		Link string
 	}
 
-	data.Link = "http://wwww.help.com"
+	data.Link = signedLink
 
 	// send email
 	err = app.SendEmail("info@widgets.com", "info@widgets.com", "password reset request", "password-reset", data)
