@@ -30,6 +30,8 @@ type Config struct {
 		Secret string
 		Key    string
 	}
+	SecretKey   string
+	FrontEndURL string
 }
 
 type Application struct {
@@ -68,6 +70,8 @@ func main() {
 	flag.StringVar(&cfg.Env, "dev", "dev", "Application environment {dev | prod}")
 	flag.StringVar(&cfg.Db.Dsn, "dsn", fmt.Sprintf("%s:%s@tcp(localhost:3306)/widgets?parseTime=true&tls=false", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD")), "DSN")
 	flag.StringVar(&cfg.Api, "api", "http://localhost:4000", "URL to Api")
+	flag.StringVar(&cfg.SecretKey, "secret-key", os.Getenv("SECRET_KEY"), "Secret Key")
+	flag.StringVar(&cfg.FrontEndURL, "front-end-url", os.Getenv("FRONT_END_URL"), "Front End URL")
 
 	flag.Parse()
 

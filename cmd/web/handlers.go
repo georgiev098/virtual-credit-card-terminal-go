@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/cards"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
+	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -344,5 +346,21 @@ func (app *Application) Logout(w http.ResponseWriter, r *http.Request) {
 func (app *Application) ForgotReset(w http.ResponseWriter, r *http.Request) {
 	if err := app.renderTemplate(w, r, "forgot-password", &templateData{}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) ShowResetPassword(w http.ResponseWriter, r *http.Request) {
+	theURL := r.RequestURI
+	testURL := fmt.Sprintf("%s%s", app.Config.FrontEndURL, theURL)
+
+	signer := urlsigner.Signer{
+		Secret: []byte(app.Config.SecretKey),
+	}
+
+	valid := signer.VerifyToken(testURL)
+	if valid {
+		w.Write([]byte("valid"))
+	} else {
+		w.Write([]byte("invalid"))
 	}
 }
