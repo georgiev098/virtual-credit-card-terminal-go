@@ -144,7 +144,7 @@ func (m *DBModel) GetWidget(id int) (Widget, error) {
 	return widget, nil
 }
 
-func (m *DBModel) GetAllSales(id int) ([]*Order, error) {
+func (m *DBModel) GetAllSales() ([]*Order, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

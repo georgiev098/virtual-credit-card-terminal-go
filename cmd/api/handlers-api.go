@@ -520,6 +520,18 @@ func (app *Application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (app *Application) AllSales(w http.ResponseWriter, r *http.Request) {
+	sales, err := app.DB.GetAllSales()
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	app.InfoLog.Println("ALL SALES:", sales)
+
+	app.WriteJSON(w, http.StatusOK, sales)
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,
