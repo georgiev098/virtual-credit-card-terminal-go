@@ -44,7 +44,46 @@ const reqOptions = {
 }
 
 fetch("http://localhost:4001/api/admin/all-sales", reqOptions).then(resp=>resp.json()).then(data=>{
-    console.log(data)
+
+
+    if(data){
+        data.forEach(sale=>{
+            let newRow = tbody.insertRow();
+            let newCell = newRow.insertCell();
+
+            newCell.innerHTML = `<a href="/admin/sales/${sale.id}">Order ${sale.id}</a>`
+
+            newCell = newRow.insertCell()
+            let item = document.createTextNode(sale.customer.last_name + ", " + sale.customer.first_name) 
+            newCell.appendChild(item)
+
+            newCell = newRow.insertCell()
+            item = document.createTextNode(sale.widget.name)
+            newCell.appendChild(item)
+
+
+            let curr = formatCurr(sale.transaction.amount)
+            newCell = newRow.insertCell()
+            item = document.createTextNode(curr)
+            newCell.appendChild(item)
+        })
+    } else {
+        let newRow = tbody.insertRow();
+        let newCell = newRow.insertCell();
+
+        newCell.setAttribute("colspan", "4")
+        newCell.innerHTML = "No data available."
+
+    }
 })
+
+
+function formatCurr(amount){
+    let c = parseFloat(amount/100)
+    return c.toLocaleString("eur", {
+        style: "currency",
+        currency: "EUR"
+    })
+}
 </script>
 {{end}}

@@ -8,8 +8,82 @@ All Subscriptions
 {{define "content"}}
 <h2 class="mt-5"> All Subscriptions</h2>
 <hr>
+
+<table id="sales-table" class="table table-striped">
+<thead>
+    <tr>
+        <th>Transaction</th>
+        <th>Customer</th>
+        <th>Product</th>
+        <th>Amount</th>
+    </tr>
+    <tbody>
+    
+    </tbody>
+</thead>
+
+</table>
 {{end}}
 
 
 {{define "js"}}
+
+<script>
+let token = localStorage.getItem("token")
+let tbody = document
+  .getElementById("sales-table")
+  .getElementsByTagName("tbody")[0]
+const reqOptions = {
+
+    method:"POST",
+    headers: {
+        "Accept":"application/json",
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token
+    },
+}
+
+fetch("http://localhost:4001/api/admin/all-subscriptions", reqOptions).then(resp=>resp.json()).then(data=>{
+
+
+    if(data){
+        data.forEach(subscription=>{
+            let newRow = tbody.insertRow();
+            let newCell = newRow.insertCell();
+
+            newCell.innerHTML = `<a href="/admin/subscriptions/${subscription.id}">Order ${subscription.id}</a>`
+
+            newCell = newRow.insertCell()
+            let item = document.createTextNode(subscription.customer.last_name + ", " + subscription.customer.first_name) 
+            newCell.appendChild(item)
+
+            newCell = newRow.insertCell()
+            item = document.createTextNode(subscription.widget.name)
+            newCell.appendChild(item)
+
+
+            let curr = formatCurr(subscription.transaction.amount)
+            newCell = newRow.insertCell()
+            item = document.createTextNode(curr + "/month")
+            newCell.appendChild(item)
+        })
+    } else {
+        let newRow = tbody.insertRow();
+        let newCell = newRow.insertCell();
+
+        newCell.setAttribute("colspan", "4")
+        newCell.innerHTML = "No data available."
+
+    }
+})
+
+
+function formatCurr(amount){
+    let c = parseFloat(amount/100)
+    return c.toLocaleString("eur", {
+        style: "currency",
+        currency: "EUR"
+    })
+}
+</script>
 {{end}}

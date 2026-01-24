@@ -527,7 +527,15 @@ func (app *Application) AllSales(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.InfoLog.Println("ALL SALES:", sales)
+	app.WriteJSON(w, http.StatusOK, sales)
+}
+
+func (app *Application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
+	sales, err := app.DB.GetAllSubscriptions()
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
 
 	app.WriteJSON(w, http.StatusOK, sales)
 }
