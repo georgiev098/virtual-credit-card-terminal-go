@@ -16,6 +16,7 @@ All Sales
         <th>Customer</th>
         <th>Product</th>
         <th>Amount</th>
+        <th>Status</th>
     </tr>
     <tbody>
     
@@ -66,6 +67,13 @@ fetch("http://localhost:4001/api/admin/sales", reqOptions).then(resp=>resp.json(
             newCell = newRow.insertCell()
             item = document.createTextNode(curr)
             newCell.appendChild(item)
+
+            newCell = newRow.insertCell()
+            if(sale.status_id != 1){
+            newCell.innerHTML = `<span class="badge bg-danger">Refunded</span>`
+            }else{
+            newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
+            }
         })
     } else {
         let newRow = tbody.insertRow();
