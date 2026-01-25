@@ -501,3 +501,16 @@ func (m *DBModel) UpdateUserPassword(u User, hash string) error {
 
 	return nil
 }
+
+func (m *DBModel) UpdateOrderStatus(id int, statusId int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	stmt := `UPDATE orders SET status_id = ? WHERE id = ?`
+
+	_, err := m.DB.ExecContext(ctx, stmt, statusId, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

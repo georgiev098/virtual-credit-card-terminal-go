@@ -581,6 +581,11 @@ func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = app.DB.UpdateOrderStatus(chargeToRefund.ID, 2)
+	if err != nil {
+		app.BadRequest(w, r, err)
+	}
+
 	var resp struct {
 		Error   bool   `json:"error"`
 		Message string `json:"message"`
