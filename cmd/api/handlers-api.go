@@ -184,8 +184,7 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 
 		// craete a new transactoin
 		amount, _ := strconv.Atoi(data.Amount)
-		// expityMonth, _ := strconv.Atoi(data.ExpiryMonth)
-		// expiryYear, _ := strconv.Atoi(data.ExpiryYear)
+
 		txn := models.Transaction{
 			Amount:              amount,
 			Currency:            "USD",
@@ -193,6 +192,8 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			ExpiryMonth:         data.ExpiryMonth,
 			ExpiryYear:          data.ExpiryYear,
 			TransactionStatusID: 2,
+			PaymentIntent:       subscribtion.ID,
+			PaymentMethod:       data.PaymentMethod,
 		}
 
 		txnID, err := app.SaveTransaction(txn)

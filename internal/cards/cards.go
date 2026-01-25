@@ -117,6 +117,20 @@ func (c *Card) SubscribeToPlan(cust *stripe.Customer, plan string, email string,
 	return subscription, nil
 }
 
+func (c *Card) CancelSubscription(subID string) error {
+	stripe.Key = c.Secret
+
+	params := &stripe.SubscriptionParams{
+		CancelAtPeriodEnd: stripe.Bool(true),
+	}
+
+	_, err := sub.Update(subID, params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *Card) Refund(chargeID string, amount int) error {
 	stripe.Key = c.Secret
 
