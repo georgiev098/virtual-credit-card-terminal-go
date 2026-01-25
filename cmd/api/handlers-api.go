@@ -553,6 +553,44 @@ func (app *Application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 	app.WriteJSON(w, http.StatusOK, sales)
 }
 
+func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
+	var chargeToRefund struct {
+		ID            int    `json:"id"`
+		PaymentIntent string `json:"payment_intent"`
+		Amount        int    `json:"amount"`
+		Currency      string `json:"currency"`
+	}
+
+	err := app.ReadJSON(w, r, &chargeToRefund)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	// get order and amount from DB and compare to amount we are trying to refund
+
+	card := cards.Card{
+		Secret:   app.Config.Stripe.Secret,
+		Key:      app.Config.Stripe.Key,
+		Currency: chargeToRefund.Currency,
+	}
+
+	err = card.Refund(chargeToRefund.PaymentIntent, chargeToRefund.Amount)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	resp.Error = false
+	resp.Message = "Charge refunded!"
+
+	app.WriteJSON(w, http.StatusOK, resp)
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,
