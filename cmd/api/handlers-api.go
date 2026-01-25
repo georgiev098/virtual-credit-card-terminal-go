@@ -597,6 +597,47 @@ func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
 	app.WriteJSON(w, http.StatusOK, resp)
 }
 
+func (app *Application) CancelSubscription(w http.ResponseWriter, r *http.Request) {
+	var subToCancel struct {
+		ID            int    `json:"id"`
+		PaymentIntent string `json:"pi"`
+		Currency      string `json:"currency"`
+	}
+
+	err := app.ReadJSON(w, r, &subToCancel)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	card := cards.Card{
+		Secret:   app.Config.Stripe.Secret,
+		Key:      app.Config.Stripe.Key,
+		Currency: subToCancel.Currency,
+	}
+
+	err = card.CancelSubscription(subToCancel.PaymentIntent)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	err = app.DB.UpdateOrderStatus(subToCancel.ID, 3)
+	if err != nil {
+		app.BadRequest(w, r, err)
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	resp.Error = false
+	resp.Message = "Subscription Cancelled!"
+
+	app.WriteJSON(w, http.StatusOK, resp)
+
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,
