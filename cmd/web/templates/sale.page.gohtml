@@ -6,7 +6,7 @@
 
 {{define "content"}}
 <h2 class="mt-5">{{index .StringMap "title"}}</h2>
-<span id="refunded" class="badge bg-danger d-none">Refunded</span>
+<span id="refunded" class="badge bg-danger d-none">{{index .StringMap "refunded-badge"}}</span>
 <span id="charged" class="badge bg-success d-none">Charged</span>
 <hr>
 <div class="alert alert-danger text-center d-none" id="messages"></div>
@@ -22,7 +22,7 @@
     <hr>
 
     <a class="btn btn-info" href='{{index .StringMap "cancel"}}'>Cancel</a>
-    <a  id="refund-btn" class="btn btn-warning d-none" href="#">Refund order</a>
+    <a  id="refund-btn" class="btn btn-warning d-none" href="#">{{index .StringMap "refund-btn"}}</a>
 
     <input type="hidden" id="charge-id" value="">
     <input type="hidden" id="charge-amount" value="">
@@ -136,11 +136,11 @@ function formatCurr(amount){
                                 body: JSON.stringify(payload)
                             }
 
-                            fetch(`http://localhost:4001/api/admin/refund`, requestOptions).then(resp=>resp.json()).then(data=>{
+                            fetch("http://localhost:4001{{index .StringMap "refund-url"}}", requestOptions).then(resp=>resp.json()).then(data=>{
                                 if(data.error){
                                     showError(data.message)
                                 }else{
-                                    showSuccess("Charge refunded")
+                                    showSuccess("{{index .StringMap "refunded-msg"}}")
                                    document.getElementById("refunded").classList.remove("d-none")
                                     document.getElementById("charged").classList.add("d-none")  
                                     document.getElementById("refund-btn").classList.add("d-none")

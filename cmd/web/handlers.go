@@ -403,6 +403,11 @@ func (app *Application) OneSale(w http.ResponseWriter, r *http.Request) {
 	stringMap := make(map[string]string, 0)
 	stringMap["title"] = "Sale"
 	stringMap["cancel"] = "/admin/sales"
+	stringMap["refund-url"] = "/api/admin/refund"
+	stringMap["refund-btn"] = "Refund Order"
+	stringMap["refund-badge"] = "Refunded"
+	stringMap["refund-msg"] = "Charge Refunded"
+
 	if err := app.renderTemplate(w, r, "sale", &templateData{
 		StringMap: stringMap,
 	}, "stripe-js"); err != nil {
@@ -414,6 +419,10 @@ func (app *Application) OneSubscription(w http.ResponseWriter, r *http.Request) 
 	stringMap := make(map[string]string, 0)
 	stringMap["title"] = "Subscription"
 	stringMap["cancel"] = "/admin/subscriptions"
+	stringMap["refund-url"] = "/api/admin/cancel-subscription"
+	stringMap["refund-btn"] = "Cancel Subscription"
+	stringMap["refund-badge"] = "Cancelled"
+	stringMap["refund-msg"] = "Subscription Cancelled"
 	if err := app.renderTemplate(w, r, "sale", &templateData{
 		StringMap: stringMap,
 	}, "stripe-js"); err != nil {
