@@ -43,8 +43,8 @@ const reqOptions = {
     },
 }
 
-fetch("http://localhost:4001/api/admin/all-sales", reqOptions).then(resp=>resp.json()).then(data=>{
-
+fetch("http://localhost:4001/api/admin/sales", reqOptions).then(resp=>resp.json()).then(data=>{
+    console.log(data)
 
     if(data){
         data.forEach(sale=>{

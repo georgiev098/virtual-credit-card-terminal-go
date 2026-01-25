@@ -43,7 +43,7 @@ const reqOptions = {
     },
 }
 
-fetch("http://localhost:4001/api/admin/all-subscriptions", reqOptions).then(resp=>resp.json()).then(data=>{
+fetch("http://localhost:4001/api/admin/subscriptions", reqOptions).then(resp=>resp.json()).then(data=>{
 
 
     if(data){

@@ -400,7 +400,23 @@ func (app *Application) AllSales(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) OneSale(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "sale", &templateData{}, "stripe-js"); err != nil {
+	stringMap := make(map[string]string, 0)
+	stringMap["title"] = "Sale"
+	stringMap["cancel"] = "/admin/sales"
+	if err := app.renderTemplate(w, r, "sale", &templateData{
+		StringMap: stringMap,
+	}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) OneSubscription(w http.ResponseWriter, r *http.Request) {
+	stringMap := make(map[string]string, 0)
+	stringMap["title"] = "Subscription"
+	stringMap["cancel"] = "/admin/subscriptions"
+	if err := app.renderTemplate(w, r, "sale", &templateData{
+		StringMap: stringMap,
+	}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
 	}
 }
