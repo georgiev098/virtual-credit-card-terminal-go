@@ -117,21 +117,18 @@ func (c *Card) SubscribeToPlan(cust *stripe.Customer, plan string, email string,
 	return subscription, nil
 }
 
-func (c *Card) Refund(paymentIntent string, amount int) error {
+func (c *Card) Refund(chargeID string, amount int) error {
 	stripe.Key = c.Secret
+
 	amountToRefund := int64(amount)
 
-	refundParams := &stripe.RefundParams{
-		Amount:        &amountToRefund,
-		PaymentIntent: &paymentIntent,
+	params := &stripe.RefundParams{
+		Charge: stripe.String(chargeID),
+		Amount: stripe.Int64(amountToRefund),
 	}
 
-	_, err := refund.New(refundParams)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := refund.New(params)
+	return err
 }
 
 func cardErrMsg(code stripe.ErrorCode) string {

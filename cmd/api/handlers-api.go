@@ -555,10 +555,10 @@ func (app *Application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 
 func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
 	var chargeToRefund struct {
-		ID            int    `json:"id"`
-		PaymentIntent string `json:"payment_intent"`
-		Amount        int    `json:"amount"`
-		Currency      string `json:"currency"`
+		ID       int    `json:"id"`
+		ChargeID string `json:"charge_id"`
+		Amount   int    `json:"amount"`
+		Currency string `json:"currency"`
 	}
 
 	err := app.ReadJSON(w, r, &chargeToRefund)
@@ -575,7 +575,7 @@ func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
 		Currency: chargeToRefund.Currency,
 	}
 
-	err = card.Refund(chargeToRefund.PaymentIntent, chargeToRefund.Amount)
+	err = card.Refund(chargeToRefund.ChargeID, chargeToRefund.Amount)
 	if err != nil {
 		app.BadRequest(w, r, err)
 		return
