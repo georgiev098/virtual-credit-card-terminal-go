@@ -224,6 +224,78 @@ func (m *DBModel) GetAllSales() ([]*Order, error) {
 	}
 
 	return orders, nil
+}
+
+func (m *DBModel) GetOneSaleByID(saleId int) (Order, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var order Order
+
+	query := `
+		SELECT
+			o.id,
+			o.widget_id,
+			o.transaction_id,
+			o.customer_id,
+			o.status_id,
+			o.quantity,
+			o.amount,
+			o.created_at,
+			o.updated_at,
+			w.id,
+			w.name,
+			t.id,
+			t.amount,
+			t.currency,
+			t.last_four,
+			t.expiry_month,
+			t.expiry_year,
+			t.payment_intent,
+			t.bank_return_code,
+			c.id,
+			c.first_name,
+			c.last_name,
+			c.email
+		FROM orders o 
+		LEFT JOIN widgets w ON o.widget_id = w.id
+		LEFT JOIN transactions t ON o.transaction_id = t.id
+		LEFT JOIN customers c ON o.customer_id = c.id
+		WHERE o.id = ?
+`
+
+	row := m.DB.QueryRowContext(ctx, query, saleId)
+
+	err := row.Scan(
+		&order.ID,
+		&order.WidgetID,
+		&order.TransactionID,
+		&order.CustomerID,
+		&order.StatusID,
+		&order.Quantity,
+		&order.Amount,
+		&order.CreatedAt,
+		&order.UpdateddAt,
+		&order.Widget.ID,
+		&order.Widget.Name,
+		&order.Transaction.ID,
+		&order.Transaction.Amount,
+		&order.Transaction.Currency,
+		&order.Transaction.LastFour,
+		&order.Transaction.ExpiryMonth,
+		&order.Transaction.ExpiryYear,
+		&order.Transaction.PaymentIntent,
+		&order.Transaction.BankReturnCode,
+		&order.Customer.ID,
+		&order.Customer.FirstName,
+		&order.Customer.LastName,
+		&order.Customer.Email,
+	)
+	if err != nil {
+		return order, err
+	}
+
+	return order, nil
 
 }
 

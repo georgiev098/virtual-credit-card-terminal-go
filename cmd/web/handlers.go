@@ -399,6 +399,12 @@ func (app *Application) AllSales(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *Application) OneSale(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "sale", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
 func (app *Application) AllSubcriptions(w http.ResponseWriter, r *http.Request) {
 	if err := app.renderTemplate(w, r, "all-subscriptions", &templateData{}, "stripe-js"); err != nil {
 		app.ErrorLog.Println(err)
