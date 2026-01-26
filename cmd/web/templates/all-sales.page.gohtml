@@ -30,60 +30,72 @@ All Sales
 {{define "js"}}
 
 <script>
-let token = localStorage.getItem("token")
-let tbody = document
-  .getElementById("sales-table")
-  .getElementsByTagName("tbody")[0]
-const reqOptions = {
 
-    method:"POST",
-    headers: {
-        "Accept":"application/json",
-        "Content-Type":"application/json",
-        "Authorization":"Bearer " + token
-    },
-}
+let currPage = 1;
+let pageSize = 3;
 
-fetch("http://localhost:4001/api/admin/sales", reqOptions).then(resp=>resp.json()).then(data=>{
-    console.log(data)
+document.addEventListener("DOMContentLoaded", function(){
+    let token = localStorage.getItem("token")
+    let tbody = document
+    .getElementById("sales-table")
+    .getElementsByTagName("tbody")[0]
 
-    if(data){
-        data.forEach(sale=>{
+    let body = {
+        page_size: pageSize,
+        curr_page: currPage,
+    }
+    const reqOptions = {
+
+        method:"POST",
+        headers: {
+            "Accept":"application/json",
+            "Content-Type":"application/json",
+            "Authorization":"Bearer " + token
+        },
+        body: JSON.stringify(body),
+    }
+
+    fetch("http://localhost:4001/api/admin/sales", reqOptions).then(resp=>resp.json()).then(data=>{
+        console.log(data)
+
+        if(data.orders){
+            data.orders.forEach(sale=>{
+                let newRow = tbody.insertRow();
+                let newCell = newRow.insertCell();
+
+                newCell.innerHTML = `<a href="/admin/sales/${sale.id}">Order ${sale.id}</a>`
+
+                newCell = newRow.insertCell()
+                let item = document.createTextNode(sale.customer.last_name + ", " + sale.customer.first_name) 
+                newCell.appendChild(item)
+
+                newCell = newRow.insertCell()
+                item = document.createTextNode(sale.widget.name)
+                newCell.appendChild(item)
+
+
+                let curr = formatCurr(sale.transaction.amount)
+                newCell = newRow.insertCell()
+                item = document.createTextNode(curr)
+                newCell.appendChild(item)
+
+                newCell = newRow.insertCell()
+                if(sale.status_id != 1){
+                newCell.innerHTML = `<span class="badge bg-danger">Refunded</span>`
+                }else{
+                newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
+                }
+            })
+        } else {
             let newRow = tbody.insertRow();
             let newCell = newRow.insertCell();
 
-            newCell.innerHTML = `<a href="/admin/sales/${sale.id}">Order ${sale.id}</a>`
-
-            newCell = newRow.insertCell()
-            let item = document.createTextNode(sale.customer.last_name + ", " + sale.customer.first_name) 
-            newCell.appendChild(item)
-
-            newCell = newRow.insertCell()
-            item = document.createTextNode(sale.widget.name)
-            newCell.appendChild(item)
-
-
-            let curr = formatCurr(sale.transaction.amount)
-            newCell = newRow.insertCell()
-            item = document.createTextNode(curr)
-            newCell.appendChild(item)
-
-            newCell = newRow.insertCell()
-            if(sale.status_id != 1){
-            newCell.innerHTML = `<span class="badge bg-danger">Refunded</span>`
-            }else{
-            newCell.innerHTML = `<span class="badge bg-success">Charged</span>`
-            }
-        })
-    } else {
-        let newRow = tbody.insertRow();
-        let newCell = newRow.insertCell();
-
-        newCell.setAttribute("colspan", "4")
-        newCell.innerHTML = "No data available."
-
-    }
+            newCell.setAttribute("colspan", "4")
+            newCell.innerHTML = "No data available."
+        }
+    })
 })
+
 
 
 function formatCurr(amount){

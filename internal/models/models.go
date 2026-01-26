@@ -265,7 +265,7 @@ func (m *DBModel) GetAllSalesPaginated(pageSize int, page int) ([]*Order, int, i
 		LEFT JOIN customers c ON o.customer_id = c.id
 		WHERE w.is_recurring = 0
 		ORDER BY o.created_at DESC
-		LIMIT ? OFFEST ?
+		LIMIT ? OFFSET ?
 `
 
 	rows, err := m.DB.QueryContext(ctx, query, pageSize, offest)
