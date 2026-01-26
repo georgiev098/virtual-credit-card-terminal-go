@@ -435,3 +435,15 @@ func (app *Application) AllSubcriptions(w http.ResponseWriter, r *http.Request) 
 		app.ErrorLog.Println(err)
 	}
 }
+
+func (app *Application) AllSUsers(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "all-users", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
+
+func (app *Application) OneSUser(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "one-user", &templateData{}, "stripe-js"); err != nil {
+		app.ErrorLog.Println(err)
+	}
+}
