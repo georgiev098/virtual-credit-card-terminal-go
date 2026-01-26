@@ -570,13 +570,38 @@ func (app *Application) GetOneSale(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
-	sales, err := app.DB.GetAllSubscriptions()
+	var payload struct {
+		PageSize int `json:"page_size"`
+		CurrPage int `json:"curr_page"`
+	}
+
+	err := app.ReadJSON(w, r, &payload)
 	if err != nil {
 		app.BadRequest(w, r, err)
 		return
 	}
 
-	app.WriteJSON(w, http.StatusOK, sales)
+	sales, lastPage, totalRecords, err := app.DB.GetAllSubscriptionsPaginated(payload.PageSize, payload.CurrPage)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	var resp struct {
+		CurrPage     int             `json:"curr_page"`
+		PageSize     int             `json:"page_size"`
+		LastPage     int             `json:"last_page"`
+		TotalRecords int             `json:"total_records"`
+		Orders       []*models.Order `json:"orders"`
+	}
+
+	resp.CurrPage = payload.CurrPage
+	resp.PageSize = payload.PageSize
+	resp.LastPage = lastPage
+	resp.TotalRecords = totalRecords
+	resp.Orders = sales
+
+	app.WriteJSON(w, http.StatusOK, resp)
 }
 
 func (app *Application) Refund(w http.ResponseWriter, r *http.Request) {
