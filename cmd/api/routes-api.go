@@ -34,6 +34,7 @@ func (app *Application) routes() http.Handler {
 		mux.Post("/refund", app.Refund)
 
 		mux.Get("/all-users", app.GetAllUsers)
+		mux.Get("/all-users/{id}", app.GetUserByID)
 	})
 
 	return mux

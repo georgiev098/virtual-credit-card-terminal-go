@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -695,6 +696,28 @@ func (app *Application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.WriteJSON(w, http.StatusOK, allUsers)
+}
+
+func (app *Application) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		app.BadRequest(w, r, errors.New("invalid user id"))
+		return
+	}
+
+	user, err := app.DB.GetOneUserByID(userId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			app.BadRequest(w, r, err)
+			return
+		}
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	app.WriteJSON(w, http.StatusOK, user)
 }
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {

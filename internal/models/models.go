@@ -682,7 +682,7 @@ func (m *DBModel) GetOneUserByID(id int) (*User, error) {
 
 	row := m.DB.QueryRowContext(ctx, stmt, id)
 
-	err := row.Scan(user.ID, user.FirstName, user.LastName, user.Email, user.CreatedAt, user.UpdatedAt)
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err // or nil, nil depending on your design

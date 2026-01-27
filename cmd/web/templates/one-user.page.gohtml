@@ -50,6 +50,24 @@ Admin User
 
 {{define "js"}}
 <script>
+    document.addEventListener("DOMContentLoaded",()=>{
+        let token = localStorage.getItem("token");
+        let id = window.location.pathname.split("/").pop()
+
+        
+     const reqOptions = {
+
+        method:"GET",
+        headers: {
+            "Accept":"application/json",
+            "Content-Type":"application/json",
+            "Authorization":"Bearer " + token,
+        }
+    }
+            fetch(`http://localhost:4001/api/admin/all-users/${id}`, reqOptions).then(resp=>resp.json()).then(data=>{
+                console.log(data)
+            })
+    })
 
 </script>
 {{end}}
