@@ -39,7 +39,7 @@ Admin User
         <a class="btn btn-warning" href="/admin/all-users" id="cancel-btn">Cancel</a>
     </div>
     <div class="float-end">
-        <a class="btn btn-danger" href="javascript:void(0);" id="delete-btn">Delete</a>
+        <a class="btn btn-danger d-none" href="javascript:void(0);" id="delete-btn">Delete</a>
     </div>
 
 
@@ -49,25 +49,48 @@ Admin User
 {{end}}
 
 {{define "js"}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+    let token = localStorage.getItem("token");
+    let id = window.location.pathname.split("/").pop()
+    let deleteBtn = document.getElementById("delete-btn")
+
     document.addEventListener("DOMContentLoaded",()=>{
-        let token = localStorage.getItem("token");
-        let id = window.location.pathname.split("/").pop()
 
-        
-     const reqOptions = {
-
-        method:"GET",
-        headers: {
-            "Accept":"application/json",
-            "Content-Type":"application/json",
-            "Authorization":"Bearer " + token,
+       if(id !== "0"){
+        if(id !== "{{.UserID}}"){
+        deleteBtn.classList.remove("d-none")
         }
-    }
+        const reqOptions = {
+            method:"GET",
+            headers: {
+                "Accept":"application/json",
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + token,
+                    }
+            }
             fetch(`http://localhost:4001/api/admin/all-users/${id}`, reqOptions).then(resp=>resp.json()).then(data=>{
-                console.log(data)
+                if(data){
+                    document.getElementById("first_name").value = data.first_name
+                    document.getElementById("last_name").value = data.last_name
+                    document.getElementById("email").value = data.email
+                }
             })
+       } else {
+       }
     })
 
+    deleteBtn.addEventListener("click",(e)=>{
+             Swal.fire({
+                            title: "Are you sure?",
+                            text: "You won't be able to undo this!",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Delete user"
+                    }).then((result) => {});
+    })
 </script>
 {{end}}
