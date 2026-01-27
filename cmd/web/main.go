@@ -115,6 +115,8 @@ func main() {
 		Session: sessionManager,
 	}
 
+	go app.ListenToWsChan()
+
 	err = app.serve()
 	if err != nil {
 		app.ErrorLog.Println(err)
