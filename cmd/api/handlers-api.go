@@ -688,6 +688,15 @@ func (app *Application) CancelSubscription(w http.ResponseWriter, r *http.Reques
 
 }
 
+func (app *Application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	allUsers, err := app.DB.AllUsers()
+	if err != nil {
+		app.BadRequest(w, r, err)
+	}
+
+	app.WriteJSON(w, http.StatusOK, allUsers)
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName:  firstName,
