@@ -720,6 +720,68 @@ func (app *Application) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	app.WriteJSON(w, http.StatusOK, user)
 }
 
+func (app *Application) EdiOrSavetUserByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		app.BadRequest(w, r, errors.New("invalid user id"))
+		return
+	}
+	var user models.User
+
+	err = app.ReadJSON(w, r, &user)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
+
+	if userId > 0 {
+		// edit existing user
+		err = app.DB.EditUser(user)
+		if err != nil {
+			app.BadRequest(w, r, err)
+			return
+		}
+
+		if user.Password != "" {
+			newHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+			if err != nil {
+				app.BadRequest(w, r, err)
+				return
+			}
+
+			err = app.DB.UpdateUserPassword(user, string(newHash))
+			if err != nil {
+				app.BadRequest(w, r, err)
+				return
+			}
+
+		}
+	} else {
+		// add a new user
+		newHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+		if err != nil {
+			app.BadRequest(w, r, err)
+			return
+		}
+
+		err = app.DB.InsertUser(user, string(newHash))
+		if err != nil {
+			app.BadRequest(w, r, err)
+			return
+		}
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	resp.Error = false
+
+	app.WriteJSON(w, http.StatusOK, resp)
+}
+
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName: firstName,
