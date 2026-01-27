@@ -36,6 +36,7 @@ func (app *Application) routes() http.Handler {
 		mux.Get("/all-users", app.GetAllUsers)
 		mux.Get("/all-users/{id}", app.GetUserByID)
 		mux.Post("/all-users/{id}", app.EdiOrSavetUserByID)
+		mux.Delete("/all-users/{id}", app.DeleteUserByID)
 	})
 
 	return mux

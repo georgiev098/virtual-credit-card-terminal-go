@@ -100,7 +100,7 @@ func (app *Application) enableCORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4000")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT")
 
 		// Handle preflight request
 		if r.Method == http.MethodOptions {
@@ -782,6 +782,31 @@ func (app *Application) EdiOrSavetUserByID(w http.ResponseWriter, r *http.Reques
 	app.WriteJSON(w, http.StatusOK, resp)
 }
 
+func (app *Application) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		app.BadRequest(w, r, errors.New("invalid user id"))
+		return
+	}
+
+	err = app.DB.DeleteUserByID(userId)
+	if err != nil {
+		app.BadRequest(w, r, errors.New("invalid user id"))
+		return
+	}
+
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	resp.Error = false
+	resp.Message = fmt.Sprintf("User with id %v, delete succsessfully!", userId)
+
+	app.WriteJSON(w, http.StatusOK, resp)
+
+}
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
 		FirstName: firstName,

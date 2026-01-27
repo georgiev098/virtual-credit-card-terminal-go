@@ -135,7 +135,26 @@ Admin User
                             confirmButtonColor: "#3085d6",
                             cancelButtonColor: "#d33",
                             confirmButtonText: "Delete user"
-                    }).then((result) => {});
+                    }).then((result) => {
+                        if(result.isConfirmed){
+                            const reqOptions = {
+                                method:"DELETE",
+                                headers: {
+                                    "Accept":"application/json",
+                                    "Content-Type":"application/json",
+                                    "Authorization":"Bearer " + token,
+                                        }
+                                    }
+                            
+                            fetch(`http://localhost:4001/api/admin/all-users/${id}`, reqOptions).then(resp=>resp.json()).then(data=>{
+                                if(data.error){ 
+                                    Swal.fire("Error: " + data.message)
+                                } else {
+                                    location.href = "/admin/all-users";
+                                }
+                            })          
+                        }
+                    });
     })
 </script>
 {{end}}
