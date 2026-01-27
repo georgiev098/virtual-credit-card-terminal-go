@@ -44,7 +44,7 @@ func (app *Application) WsEndPoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.InfoLog.Printf(fmt.Sprintf("Client connected from %s", r.RemoteAddr))
+	app.InfoLog.Printf("%s", fmt.Sprintf("Client connected from %s", r.RemoteAddr))
 
 	var resp WsJSONResp
 

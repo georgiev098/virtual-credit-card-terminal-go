@@ -81,6 +81,36 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
   <script>
+
+  {{if eq .IsAuthenticated 1}}
+  document.addEventListener("DOMContentLoaded", function(){
+    let socket = new WebSocket("ws://localhost:4000/ws")
+
+    socket.onopen = () => {
+      console.log("Successfully connected to websockets!")
+    }
+
+    socket.onerror = (err) => {
+    console.error("WebSocket error:", err)
+    }
+
+    socket.onclose = () => {
+      console.log("WebSocket connection closed")
+    }
+
+    socket.onmessage = msg => {
+      let data = JSON.parse(msg.data)
+
+      switch (data.action){
+        case "logout":
+        if (data.user_id === {{.UserID}}){
+          logout()
+        }
+        break;
+      }
+    }
+  })
+  {{end}}
  
 
     function logout(){
