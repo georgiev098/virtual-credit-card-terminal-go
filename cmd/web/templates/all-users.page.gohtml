@@ -42,7 +42,24 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
 
     fetch("http://localhost:4001/api/admin/all-users", reqOptions).then(resp=>resp.json()).then(data=>{
-        console.log(data)
+            if(data){
+                data.forEach(user=>{
+                    let newRow = tbody.insertRow();
+                    let newCell = newRow.insertCell()
+
+                    newCell.innerHTML = `<a href="/admin/all-users/${user.id}">${user.first_name}, ${user.last_name}</a>`;
+
+                    newCell = newRow.insertCell()
+                    let item = document.createTextNode(user.email)
+                    newCell.appendChild(item)
+                })
+            }else{
+                let newRow = tbody.insertRow()
+                let newCell = newRow.insertCell()
+
+                newCell.setAttribute("col-span", "2")
+                newCell.innerHTML = "No data available."
+            }
     })
 })
 
