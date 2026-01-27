@@ -111,7 +111,7 @@ func (app *Application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r
 		PaymentIntent:       txnData.PaymentIntentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		CreatedAt:           time.Now(),
-		UpdateddAt:          time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 
 	_, err = app.SaveTransaction(txn)
@@ -174,7 +174,7 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		PaymentIntent:       txnData.PaymentIntentID,
 		PaymentMethod:       txnData.PaymentMethodID,
 		CreatedAt:           time.Now(),
-		UpdateddAt:          time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 
 	txnID, err := app.SaveTransaction(txn)
@@ -193,7 +193,7 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		Quantity:      1,
 		Amount:        txn.Amount,
 		CreatedAt:     time.Now(),
-		UpdateddAt:    time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	_, err = app.SaveOrder(order)
@@ -224,11 +224,11 @@ func (app *Application) Receipt(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
-		FirstName:  firstName,
-		LastName:   lastName,
-		Email:      email,
-		CreatedAt:  time.Now(),
-		UpdateddAt: time.Now(),
+		FirstName: firstName,
+		LastName:  lastName,
+		Email:     email,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	newCustomerID, err := app.DB.InsertNewCustomer(customer)

@@ -210,7 +210,7 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			Quantity:      1,
 			Amount:        amount,
 			CreatedAt:     time.Now(),
-			UpdateddAt:    time.Now(),
+			UpdatedAt:     time.Now(),
 		}
 
 		_, err = app.SaveOrder(order)
@@ -699,11 +699,11 @@ func (app *Application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) SaveCustomer(firstName string, lastName string, email string) (int, error) {
 	customer := models.Customer{
-		FirstName:  firstName,
-		LastName:   lastName,
-		Email:      email,
-		CreatedAt:  time.Now(),
-		UpdateddAt: time.Now(),
+		FirstName: firstName,
+		LastName:  lastName,
+		Email:     email,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	newCustomerID, err := app.DB.InsertNewCustomer(customer)

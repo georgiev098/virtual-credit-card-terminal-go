@@ -37,7 +37,7 @@ type Widget struct {
 	InventoryLevel int       `json:"inventory_level"`
 	Price          int       `json:"price"`
 	CreatedAt      time.Time `json:"-"`
-	UpdateddAt     time.Time `json:"-"`
+	UpdatedAt      time.Time `json:"-"`
 }
 
 type Order struct {
@@ -49,43 +49,43 @@ type Order struct {
 	Quantity      int         `json:"quantity"`
 	Amount        int         `json:"amount"`
 	CreatedAt     time.Time   `json:"-"`
-	UpdateddAt    time.Time   `json:"-"`
+	UpdatedAt     time.Time   `json:"-"`
 	Widget        Widget      `json:"widget"`
 	Transaction   Transaction `json:"transaction"`
 	Customer      Customer    `json:"customer"`
 }
 
 type Status struct {
-	ID         int       `json:"id"`
-	Name       string    `json:"name"`
-	CreatedAt  time.Time `json:"-"`
-	UpdateddAt time.Time `json:"-"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type TransationStatus struct {
-	ID         int       `json:"id"`
-	Name       string    `json:"name"`
-	CreatedAt  time.Time `json:"-"`
-	UpdateddAt time.Time `json:"-"`
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type User struct {
-	ID         int       `json:"id"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	Email      string    `json:"email"`
-	Password   string    `json:"password"`
-	CreatedAt  time.Time `json:"-"`
-	UpdateddAt time.Time `json:"-"`
+	ID        int       `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type Customer struct {
-	ID         int       `json:"id"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	Email      string    `json:"email"`
-	CreatedAt  time.Time `json:"-"`
-	UpdateddAt time.Time `json:"-"`
+	ID        int       `json:"id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type Transaction struct {
@@ -101,7 +101,7 @@ type Transaction struct {
 	PaymentIntent       string    `json:"payment_intent"`
 	PaymentMethod       string    `json:"payment_metho"`
 	CreatedAt           time.Time `json:"-"`
-	UpdateddAt          time.Time `json:"-"`
+	UpdatedAt           time.Time `json:"-"`
 }
 
 func (m *DBModel) GetWidget(id int) (Widget, error) {
@@ -135,7 +135,7 @@ func (m *DBModel) GetWidget(id int) (Widget, error) {
 		&widget.InventoryLevel,
 		&widget.Price,
 		&widget.CreatedAt,
-		&widget.UpdateddAt,
+		&widget.UpdatedAt,
 	)
 	if err != nil {
 		return widget, err
@@ -203,7 +203,7 @@ func (m *DBModel) GetAllSalesPaginated(pageSize int, page int) ([]*Order, int, i
 			&o.Quantity,
 			&o.Amount,
 			&o.CreatedAt,
-			&o.UpdateddAt,
+			&o.UpdatedAt,
 			&o.Widget.ID,
 			&o.Widget.Name,
 			&o.Transaction.ID,
@@ -304,7 +304,7 @@ func (m *DBModel) GetAllSubscriptionsPaginated(pageSize int, page int) ([]*Order
 			&o.Quantity,
 			&o.Amount,
 			&o.CreatedAt,
-			&o.UpdateddAt,
+			&o.UpdatedAt,
 			&o.Widget.ID,
 			&o.Widget.Name,
 			&o.Transaction.ID,
@@ -395,7 +395,7 @@ func (m *DBModel) GetOneSaleByID(saleId int) (Order, error) {
 		&order.Quantity,
 		&order.Amount,
 		&order.CreatedAt,
-		&order.UpdateddAt,
+		&order.UpdatedAt,
 		&order.Widget.ID,
 		&order.Widget.Name,
 		&order.Transaction.ID,
@@ -475,7 +475,7 @@ func (m *DBModel) GetAllSubscriptions() ([]*Order, error) {
 			&o.Quantity,
 			&o.Amount,
 			&o.CreatedAt,
-			&o.UpdateddAt,
+			&o.UpdatedAt,
 			&o.Widget.ID,
 			&o.Widget.Name,
 			&o.Transaction.ID,
@@ -574,7 +574,7 @@ func (m *DBModel) GetUserByEmail(email string) (User, error) {
 		&u.Email,
 		&u.Password,
 		&u.CreatedAt,
-		&u.UpdateddAt,
+		&u.UpdatedAt,
 	)
 	if err != nil {
 		return u, err
@@ -644,7 +644,7 @@ func (m *DBModel) AllUsers() ([]*User, error) {
 	stmt := `
 	 SELECT id, first_name, last_name, email, created_at, updated_at
 	 FROM users
-	 ORDER BY last_name first_name
+	 ORDER BY last_name, first_name
 	`
 
 	rows, err := m.DB.QueryContext(ctx, stmt)
@@ -657,7 +657,7 @@ func (m *DBModel) AllUsers() ([]*User, error) {
 	for rows.Next() {
 		var u User
 
-		err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.CreatedAt, &u.UpdateddAt)
+		err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.CreatedAt, &u.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -682,7 +682,7 @@ func (m *DBModel) GetOneUserByID(id int) (*User, error) {
 
 	row := m.DB.QueryRowContext(ctx, stmt, id)
 
-	err := row.Scan(user.ID, user.FirstName, user.LastName, user.Email, user.CreatedAt, user.UpdateddAt)
+	err := row.Scan(user.ID, user.FirstName, user.LastName, user.Email, user.CreatedAt, user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err // or nil, nil depending on your design
