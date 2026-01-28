@@ -31,10 +31,22 @@ func (app *Application) CreateAndSendInvoice(w http.ResponseWriter, r *http.Requ
 	}
 
 	// generate PDF
+	err = app.CreateInvoicePDF(order)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
 
 	// create email
-
+	attachments := []string{
+		fmt.Sprintf("./invoice/%d.pdf", order.ID),
+	}
 	// send email with attachment
+	err = app.SendEmail("info@widgets.com", order.Email, "Your invoice", "invoice", attachments, nil)
+	if err != nil {
+		app.BadRequest(w, r, err)
+		return
+	}
 
 	// send resp
 	var resp struct {
@@ -43,7 +55,7 @@ func (app *Application) CreateAndSendInvoice(w http.ResponseWriter, r *http.Requ
 	}
 
 	resp.Error = false
-	resp.Message = fmt.Sprintf("Invoice %s.pdf created and sent to %s", order.ID, order.Email)
+	resp.Message = fmt.Sprintf("Invoice %d.pdf created and sent to %s", order.ID, order.Email)
 
 	app.WriteJSON(w, http.StatusCreated, resp)
 }
