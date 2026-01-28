@@ -69,7 +69,7 @@ func (app *Application) WsEndPoint(w http.ResponseWriter, r *http.Request) {
 func (app *Application) ListenForWs(conn *WebSocketConn) {
 	defer func() {
 		if r := recover(); r != nil {
-			app.ErrorLog.Println("Error: " + fmt.Sprintf("%v", r))
+			app.ErrorLog.Println("Error:", r)
 		}
 	}()
 
@@ -78,14 +78,16 @@ func (app *Application) ListenForWs(conn *WebSocketConn) {
 	for {
 		err := conn.ReadJSON(&payload)
 		if err != nil {
-			// do nothing
-		} else {
-			payload.Connection = *conn
-			wsChan <- payload
+			app.InfoLog.Println("WebSocket disconnected:", err)
+			_ = conn.Close()
+			delete(clients, *conn)
+			break
 		}
+
+		payload.Connection = *conn
+		wsChan <- payload
 	}
 }
-
 func (app *Application) ListenToWsChan() {
 	var resp WsJSONResp
 

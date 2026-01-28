@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -25,6 +28,17 @@ type TransactionData struct {
 	ExpiryMonth     int
 	ExpiryYear      int
 	BankReturnCode  string
+}
+
+type Invoice struct {
+	ID        int       `json:"id"`
+	Quantity  int       `json:"quantity"`
+	Amount    int       `json:"amount"`
+	Product   string    `json:"product"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (app *Application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
@@ -196,15 +210,64 @@ func (app *Application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		UpdatedAt:     time.Now(),
 	}
 
-	_, err = app.SaveOrder(order)
+	orderID, err := app.SaveOrder(order)
 	if err != nil {
 		app.ErrorLog.Println(err)
 		return
 	}
 
+	// call microservice
+	invoice := Invoice{
+		ID:        orderID,
+		Amount:    order.Amount,
+		Product:   "Widget",
+		Quantity:  order.Quantity,
+		FirstName: txnData.FirstName,
+		LastName:  txnData.LastName,
+		Email:     txnData.Email,
+		CreatedAt: time.Now(),
+	}
+
+	err = app.CallInvoiceMicroservice(invoice)
+	if err != nil {
+		app.ErrorLog.Println(err)
+	}
+
 	// write to session and redirect page
 	app.Session.Put(r.Context(), "receipt", txnData)
 	http.Redirect(w, r, "/receipt", http.StatusSeeOther)
+}
+
+func (app *Application) CallInvoiceMicroservice(inv Invoice) error {
+	url := os.Getenv("MICROSERVICE_URL")
+
+	app.InfoLog.Println("ULR", url)
+
+	out, err := json.Marshal(inv)
+	if err != nil {
+		return err
+	}
+	app.InfoLog.Println("OUT", string(out))
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(out))
+	if err != nil {
+		return err
+	}
+	app.InfoLog.Println("REQ", request)
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(request)
+	app.InfoLog.Println("RESP", resp)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	app.InfoLog.Println(resp.Body)
+	return nil
 }
 
 func (app *Application) Receipt(w http.ResponseWriter, r *http.Request) {

@@ -24,7 +24,7 @@ func (app *Application) CreateAndSendInvoice(w http.ResponseWriter, r *http.Requ
 	// receive JSON
 	var order Order
 
-	err := app.ReadJSON(w, r, order)
+	err := app.ReadJSON(w, r, &order)
 	if err != nil {
 		app.BadRequest(w, r, err)
 		return
@@ -39,7 +39,7 @@ func (app *Application) CreateAndSendInvoice(w http.ResponseWriter, r *http.Requ
 
 	// create email
 	attachments := []string{
-		fmt.Sprintf("./invoice/%d.pdf", order.ID),
+		fmt.Sprintf("./invoices/%d.pdf", order.ID),
 	}
 	// send email with attachment
 	err = app.SendEmail("info@widgets.com", order.Email, "Your invoice", "invoice", attachments, nil)
@@ -86,9 +86,9 @@ func (app *Application) CreateInvoicePDF(order Order) error {
 	pdf.SetX(166)
 	pdf.CellFormat(20, 8, fmt.Sprintf("%d", order.Quantity), "", 0, "C", false, 0, "")
 	pdf.SetX(185)
-	pdf.CellFormat(20, 8, fmt.Sprintf("%.2f", float32(order.Amount/100.0)), "", 0, "R", false, 0, "")
+	pdf.CellFormat(20, 8, fmt.Sprintf("%.2s", fmt.Sprintf("%.2f", float64(order.Amount)/100)), "", 0, "R", false, 0, "")
 
-	invoicePath := fmt.Sprintf("./invoice/%d.pdf", order.ID)
+	invoicePath := fmt.Sprintf("./invoices/%d.pdf", order.ID)
 
 	err := pdf.OutputFileAndClose(invoicePath)
 	if err != nil {
@@ -101,7 +101,7 @@ func (app *Application) CreateInvoicePDF(order Order) error {
 
 func (app *Application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT")

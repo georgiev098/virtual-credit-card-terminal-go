@@ -9,7 +9,7 @@ import (
 func (app *Application) routes() http.Handler {
 	mux := chi.NewRouter()
 
-	mux.Get("/invoice/create-and-send", app.CreateAndSendInvoice)
+	mux.Post("/invoice/create-and-send", app.CreateAndSendInvoice)
 
 	return mux
 }
