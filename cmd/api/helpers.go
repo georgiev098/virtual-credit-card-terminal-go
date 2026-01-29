@@ -95,3 +95,18 @@ func (app *Application) ValidatePassword(hash string, password string) (bool, er
 
 	return true, nil
 }
+
+func (app *Application) FailedValidation(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	var payload struct {
+		Error   bool              `json:"error"`
+		Message string            `json:"message"`
+		Errors  map[string]string `json:"errors"`
+	}
+
+	payload.Error = true
+	payload.Message = "Failed validation."
+	payload.Errors = errors
+
+	app.WriteJSON(w, http.StatusUnprocessableEntity, payload)
+
+}
