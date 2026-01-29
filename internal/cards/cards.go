@@ -92,11 +92,11 @@ func (c *Card) CraeteCustomer(pm string, email string) (*stripe.Customer, string
 	return cust, "", nil
 }
 
-func (c *Card) SubscribeToPlan(cust *stripe.Customer, plan string, email string, last4 string, cardType string) (*stripe.Subscription, error) {
+func (c *Card) SubscribeToPlan(cust *stripe.Customer, priceID string, email string, last4 string, cardType string) (*stripe.Subscription, error) {
 	stripeCustomerID := cust.ID
 	items := []*stripe.SubscriptionItemsParams{
 		{
-			Plan: stripe.String(plan),
+			Plan: stripe.String(priceID),
 		},
 	}
 	params := &stripe.SubscriptionParams{
@@ -107,7 +107,7 @@ func (c *Card) SubscribeToPlan(cust *stripe.Customer, plan string, email string,
 
 	params.AddMetadata("last_four", last4)
 	params.AddMetadata("card_type", cardType)
-	params.AddExpand("lastest_invoice.payment_intent")
+	params.AddExpand("latest_invoice.payment_intent")
 
 	subscription, err := sub.New(params)
 	if err != nil {

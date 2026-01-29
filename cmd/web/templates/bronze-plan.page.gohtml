@@ -24,13 +24,19 @@ Bronze Plan
     
 
     <div class="mb-3">
-        <label for="first-name" class="form-label">First Name</label>
-        <input type="text" class="form-control" id="first-name" name="first_name" required="" autocomplete="first-name-new">   
+        <label for="first_name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" required="" autocomplete="first_name-new">  
+        <div id="first_name-help" class="valid-feedback">
+            Looks good!
+        </div> 
     </div>
 
     <div class="mb-3">
-        <label for="last-name" class="form-label">Last Name</label>
-        <input type="text" class="form-control" id="last-name" name="last_name" required="" autocomplete="last-name-new">   
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" required="" autocomplete="last-name-new">   
+        <div id="last_name-help" class="valid-feedback">
+            Looks good!
+        </div> 
     </div>
 
         <div class="mb-3">
@@ -67,8 +73,8 @@ Bronze Plan
     <input type="hidden" name="payment_amount" id="payment_amount"/>
     <input type="hidden" name="payment_currency" id="payment_currency"/>
     <input type="hidden" name="cardholder_name" id="cardholder_name_hidden">
-    <input type="hidden" name="first-name" id="first_name">
-    <input type="hidden" name="last-name" id="last_name">
+    <input type="hidden" name="first_name" id="first_name">
+    <input type="hidden" name="last_name" id="last_name">
     <input type="hidden" name="cardholder_email" id="cardholder_email_hidden">
 
 </form>
@@ -167,7 +173,7 @@ stripe = Stripe('{{.StripePublicKey}}')
                 payment_method: result.paymentMethod.id,
                 email:document.getElementById("cardholder-email").value,
                 last_four: result.paymentMethod.card.last4,
-                pruduct_id: document.getElementById("product_id").value,
+                product_id: document.getElementById("product_id").value,
                 card_brand:  result.paymentMethod.card.brand,
                 expiry_month: result.paymentMethod.card.exp_month,
                 expiry_year: result.paymentMethod.card.exp_year,
@@ -184,15 +190,29 @@ stripe = Stripe('{{.StripePublicKey}}')
                 },
                 body: JSON.stringify(payload)
             }
-            fetch("http://localhost:4001/api/craete-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
-            console.log(data)
-            processing.classList.add("d-none")
-            showCardSuccess();
-            sessionStorage.first_name = document.getElementById("first_name").value;
-            sessionStorage.last_name = document.getElementById("last_name").value;
-            sessionStorage.amout = "{{formatCurr $widget.Price}}";
-            sessionStorage.last_four = result.paymentMethod.card.last4;
-            location.href = "/receipt/bronze"
+            fetch("http://localhost:4001/api/create-customer-and-subscribe-to-plan", requestOptions).then(resp => resp.json()).then(data=>{
+                if(data.error===false){
+                console.log(data)
+                processing.classList.add("d-none")
+                showCardSuccess();
+                sessionStorage.first_name = document.getElementById("first_name").value;
+                sessionStorage.last_name = document.getElementById("last_name").value;
+                sessionStorage.amout = "{{formatCurr $widget.Price}}";
+                sessionStorage.last_four = result.paymentMethod.card.last4;
+                location.href = "/receipt/bronze"
+                } else {
+                    document.getElementById("charge_form").classList.remove("was-validated")
+                    if(data.errors) {
+                    Object.entries(data.errors).forEach(error=>{
+                        const [key, val] = error;
+                        document.getElementById(key).classList.add("is-invalid")
+                        document.getElementById(key + "-help").classList.remove("valid-feedback")
+                        document.getElementById(key + "-help").classList.add("invalid-feedback")
+                        document.getElementById(key + "-help").innerText = val
+                    })
+                    showPayButtons()
+                    }
+                }
                     }
                 )
             }

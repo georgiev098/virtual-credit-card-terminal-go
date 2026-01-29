@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/encryption"
 	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/models"
 	urlsigner "github.com/georgiev098/virtual-credit-card-terminal-go/internal/url-signer"
+	"github.com/georgiev098/virtual-credit-card-terminal-go/internal/validation"
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v72"
 	"golang.org/x/crypto/bcrypt"
@@ -149,7 +151,15 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		data.Currency = "eur"
 	}
 
-	app.InfoLog.Printf("DEBUG: Received currency: %s, amount: %s", data.Currency, data.Amount)
+	// validate data
+	v := validation.New()
+	v.Check(len(data.FirstName) > 1, "first_name", "Must be at least 2 characters.")
+	v.Check(len(data.LastName) > 1, "last_name", "Must be at least 2 characters.")
+
+	if !v.Valid() {
+		app.FailedValidation(w, r, v.Errors)
+		return
+	}
 
 	card := cards.Card{
 		Secret:   app.Config.Stripe.Secret,
@@ -164,8 +174,10 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		txnMsg = msg
 	}
 
+	priceID := os.Getenv("BRONZE_PRICE_ID")
+
 	if okay {
-		subscribtion, err = card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
+		subscribtion, err = card.SubscribeToPlan(stripeCustomer, priceID, data.Email, data.LastFour, "")
 		if err != nil {
 			app.ErrorLog.Println(err)
 			okay = false
@@ -174,6 +186,7 @@ func (app *Application) CraeteCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 
 		app.InfoLog.Println("subscribtion ID is:", subscribtion.ID)
 	}
+	app.InfoLog.Println("productID:", data.ProductID)
 
 	if okay {
 		productID, _ := strconv.Atoi(data.ProductID)
